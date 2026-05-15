@@ -45,4 +45,5 @@ public class VisaHolder {
     @Enumerated(EnumType.STRING) // Determines how enum should be persisted in DB - as a String
     @Column(nullable = false)
     private VisaStatus status;
+
 }
