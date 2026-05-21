@@ -1,21 +1,19 @@
-package visa_holder_tracker;
+package visa_holder_tracker.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
-@Table(name = "admins")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "users")
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Admin {
+public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(nullable = false, unique = true)
+    private String passportNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
