@@ -6,9 +6,9 @@ import visa_holder_tracker.entity.VisaHolder;
 import java.util.List;
 
 public interface VisaHolderRepository
-    extends JpaRepository<VisaHolder, Long>{
+        extends JpaRepository<VisaHolder, Long> {
 
     List<VisaHolder> findByStatus(String status);
 
-    List<VisaHolder> findByVisa(String visaType);
+    List<VisaHolder> findByVisaType(String visaType);
 }

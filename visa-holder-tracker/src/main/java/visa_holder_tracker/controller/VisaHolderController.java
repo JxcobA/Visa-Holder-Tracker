@@ -2,6 +2,7 @@ package visa_holder_tracker.controller;
 
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,10 @@ public class VisaHolderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<VisaHolder>> getAllVisaHolders(){
-        return ResponseEntity.ok(service.getAllVisaHolders());
+    public ResponseEntity<Page<VisaHolder>> getAllVisaHolders(
+            @RequestParam(defaultValue= "0") int page,
+            @RequestParam(defaultValue = "10" )int size
+    ){
+        return ResponseEntity.ok(service.getAllVisaHolders(page, size));
     }
 }

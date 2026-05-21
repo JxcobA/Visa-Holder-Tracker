@@ -1,6 +1,9 @@
 package visa_holder_tracker.service;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import visa_holder_tracker.dto.VisaHolderRequest;
 import visa_holder_tracker.entity.VisaHolder;
@@ -29,7 +32,11 @@ public class VisaHolderService {
         return repository.save(visaHolder);
 
     }
-    public List<VisaHolder> getAllVisaHolders(){
-        return repository.findAll();
+    public Page<VisaHolder> getAllVisaHolders(int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAll(pageable);
     }
+
+
 }
+
