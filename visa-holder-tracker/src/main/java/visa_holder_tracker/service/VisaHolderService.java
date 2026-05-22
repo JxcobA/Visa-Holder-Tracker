@@ -12,16 +12,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VisaHolderService {
 
-    private final VisaHolderRepository visaHolderRepository;
 
-    public VisaHolderService(VisaHolderRepository visaHolderRepository) {
-        this.visaHolderRepository = visaHolderRepository;
-    }
+    private final VisaHolderRepository visaHolderRepository;
 
 
     // (After merging and testing) AWS notification logic can be written and triggered from here
     public List<VisaHolder> getExpiringSoon(int days) {
+        LocalDate today = LocalDate.now();
         LocalDate cutoff = LocalDate.now().plusDays(days);
-        return visaHolderRepository.findExpiringSoon((cutoff));
+        return visaHolderRepository.findExpiringSoon(today, cutoff);
+    }
+
+    public List<VisaHolder> getExpired() {
+        LocalDate today = LocalDate.now();
+        return visaHolderRepository.findExpired(today);
     }
 }

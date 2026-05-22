@@ -18,10 +18,6 @@ public class VisaHolderController {
 
     private final VisaHolderService service;
 
-    public VisaHolderController(VisaHolderService service) {
-        this.service = service;
-    }
-
     @GetMapping("/expiring-soon")
     public ResponseEntity<List<VisaHolder>> getExpiringSoon(
             // Defaults to 30 if no value provided
