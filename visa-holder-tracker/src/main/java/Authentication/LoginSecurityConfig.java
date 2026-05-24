@@ -1,17 +1,14 @@
 package Authentication;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,39 +19,45 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class LoginSecurityConfig {
-
-    private UserDetailsService userDetailsService;
+    /// Provider: How to authenticate
+    /// Manager: Handles authentication process
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-                .csrf(csrf -> csrf.disable())
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/test").permitAll()
-                        .anyRequest().authenticated()
+        http // Spring Security configuration object
+                .csrf(csrf -> csrf.disable()) // Disable CSRF protection
+                .httpBasic(AbstractHttpConfigurer::disable) // Disable http basic
+                .formLogin(AbstractHttpConfigurer::disable) // Disable browser form login
+                .authorizeHttpRequests(auth -> auth // Manages endpoint authorization
+                        .requestMatchers("/api/auth/login", "/api/auth/test").permitAll() // Permit any request to the mentioned endpoints
+                        .anyRequest().authenticated() // Any other request fall under the default authentication.
                 );
 
-        return http.build();
+        return http.build(); // Applies all the new rules.
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService){
+        // Use database backed authentication through UserDetailsService
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+
+        // Used to tell spring how to verify passwords using BCrypt
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
-        provider.setUserDetailsService(userDetailsService); // ✅ injected
+
+        // Set where to load users from
+        provider.setUserDetailsService(userDetailsService);
         return provider;
     }
 
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+        // get spring's built-in manager (Automatically uses our authenticationProvider)
         return config.getAuthenticationManager();
     }
 
-    // Temproal for testing should be removed once we have our database
+    // Temporal for testing should be removed once we have our database grabbing the details
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails user = User
@@ -63,7 +66,13 @@ public class LoginSecurityConfig {
                 .roles("USER")
                 .build();
 
-        return new InMemoryUserDetailsManager(user);
+        UserDetails admin = User
+                .withUsername("admin")
+                .password(new BCryptPasswordEncoder(12).encode("password43"))
+                .roles("ADMIN")
+                .build();
+
+        return new InMemoryUserDetailsManager(user, admin);
     }
 
 
