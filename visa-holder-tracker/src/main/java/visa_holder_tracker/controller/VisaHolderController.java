@@ -64,4 +64,13 @@ public class VisaHolderController {
                 service.filterVisaHolderByStatus(status, page, size)
         );
     }
+
+    @GetMapping("/{passportNumber}")
+    public ResponseEntity<VisaHolder> getVisaHolderByPassportNumber(
+            @PathVariable String passportNumber
+    ){
+        return ResponseEntity.ok(
+                service.getVisaHolderByPassportNumber(passportNumber)
+        );
+    }
 }

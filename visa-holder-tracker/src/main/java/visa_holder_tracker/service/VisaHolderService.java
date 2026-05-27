@@ -60,6 +60,11 @@ public class VisaHolderService {
         return repository.findByStatus(status, pageable);
     }
 
+    public VisaHolder getVisaHolderByPassportNumber(String passportNumber) {
+        return repository.findByPassportNumber(passportNumber)
+                .orElseThrow(() ->new RuntimeException("Visa Holder Not Found"));
+    }
+
 
 }
 

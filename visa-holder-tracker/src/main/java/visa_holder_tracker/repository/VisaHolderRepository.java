@@ -7,6 +7,7 @@ import visa_holder_tracker.entity.VisaHolder;
 import visa_holder_tracker.entity.VisaStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VisaHolderRepository
         extends JpaRepository<VisaHolder, Long> {
@@ -22,4 +23,7 @@ public interface VisaHolderRepository
             String fullName,
             Pageable pageable
     );
+
+
+    Optional<VisaHolder> findByPassportNumber(String passportNumber);
 }
