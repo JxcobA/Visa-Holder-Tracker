@@ -40,4 +40,16 @@ public class VisaHolderController {
     ){
         return ResponseEntity.ok(service.getAllVisaHolders(page, size));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<VisaHolder>> searchVisaHoldersByName(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+
+    ){
+        return ResponseEntity.ok(
+                service.searchVisaHoldersByName(name, page, size)
+        );
+    }
 }
