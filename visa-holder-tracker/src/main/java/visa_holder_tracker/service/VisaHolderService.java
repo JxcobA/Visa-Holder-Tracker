@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import visa_holder_tracker.dto.VisaHolderRequest;
 import visa_holder_tracker.entity.VisaHolder;
+import visa_holder_tracker.entity.VisaStatus;
 import visa_holder_tracker.repository.VisaHolderRepository;
 
 import java.util.List;
@@ -48,6 +49,15 @@ public class VisaHolderService {
                 fullName,
                 pageable
         );
+    }
+
+    public Page<VisaHolder> filterVisaHolderByStatus(
+            VisaStatus status,
+            int page,
+            int size
+    ){
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findByStatus(status, pageable);
     }
 
 

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import visa_holder_tracker.dto.VisaHolderRequest;
 import visa_holder_tracker.entity.VisaHolder;
+import visa_holder_tracker.entity.VisaStatus;
 import visa_holder_tracker.service.VisaHolderService;
 
 import java.util.List;
@@ -50,6 +51,17 @@ public class VisaHolderController {
     ){
         return ResponseEntity.ok(
                 service.searchVisaHoldersByName(name, page, size)
+        );
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<Page<VisaHolder>> filterByStatus(
+            @RequestParam VisaStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ResponseEntity.ok(
+                service.filterVisaHolderByStatus(status, page, size)
         );
     }
 }
