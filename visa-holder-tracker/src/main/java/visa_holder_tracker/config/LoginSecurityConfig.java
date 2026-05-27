@@ -50,14 +50,12 @@ public class LoginSecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
-        provider.setUserDetailsService(userDetailsService);
-        return provider;
+        return new DaoAuthenticationProvider(new BCryptPasswordEncoder(12));
     }
 
 
-    // Can be archived, this should now use the custom user details service
+    // Can be archived, this should now use CustomUserDetailsService
+
     // Also .setUserDetailsService is depreciated
     //  - Spring Security 6.5 prefers for UserDetailsService to be passed directly into the constructor
 //    @Bean
