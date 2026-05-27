@@ -1,4 +1,4 @@
-package Authentication;
+package visa_holder_tracker.authentication;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,12 +16,20 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class LoginSecurityConfig {
     /// Provider: How to authenticate
     /// Manager: Handles authentication process
+
+    private final JwtFilter jwtFilter;
+
+    public LoginSecurityConfig(JwtFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
+    }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -30,9 +39,11 @@ public class LoginSecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable) // Disable http basic
                 .formLogin(AbstractHttpConfigurer::disable) // Disable browser form login
                 .authorizeHttpRequests(auth -> auth // Manages endpoint authorization
-                        .requestMatchers("/api/auth/login", "/api/auth/test").permitAll() // Permit any request to the mentioned endpoints
+                        .requestMatchers("/api/auth/login").permitAll() // Permit any request to the mentioned endpoints
                         .anyRequest().authenticated() // Any other request fall under the default authentication.
                 );
+
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build(); // Applies all the new rules.
     }
@@ -57,7 +68,7 @@ public class LoginSecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // Temporal for testing should be removed once we have our database grabbing the details
+    // Temporal for testing should be removed once we have our database getting the details
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails user = User
