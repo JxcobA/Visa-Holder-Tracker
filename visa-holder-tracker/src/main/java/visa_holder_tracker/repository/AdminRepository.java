@@ -7,5 +7,5 @@ import java.util.Optional;
 // Uses Long for the id, as Admin doesn't use passport number
 public interface AdminRepository extends JpaRepository<Admin, Long> {
 
-    Optional<Admin> findByUsername(String username);
+    Optional<Admin> findByFullName(String fullName);
 }

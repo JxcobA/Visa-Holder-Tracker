@@ -48,28 +48,19 @@ public class LoginSecurityConfig {
         return http.build(); // Applies all the new rules
     }
 
+
     @Bean
-    public AuthenticationProvider authenticationProvider() {
-        return new DaoAuthenticationProvider(new BCryptPasswordEncoder(12));
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService){
+        // Use database backed authentication through UserDetailsService
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+
+        // Used to tell spring how to verify passwords using BCrypt
+        provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
+
+        // Set where to load users from
+        provider.setUserDetailsService(userDetailsService);
+        return provider;
     }
-
-
-    // Can be archived, this should now use CustomUserDetailsService
-
-    // Also .setUserDetailsService is depreciated
-    //  - Spring Security 6.5 prefers for UserDetailsService to be passed directly into the constructor
-//    @Bean
-//    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService){
-//        // Use database backed authentication through UserDetailsService
-//        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-//
-//        // Used to tell spring how to verify passwords using BCrypt
-//        provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
-//
-//        // Set where to load users from
-//        provider.setUserDetailsService(userDetailsService);
-//        return provider;
-//    }
 
 
     @Bean
@@ -79,22 +70,22 @@ public class LoginSecurityConfig {
     }
 
     // Temporal for testing should be removed once we have our database grabbing the details
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User
-                .withUsername("user")
-                .password(new BCryptPasswordEncoder(12).encode("password"))
-                .roles("USER")
-                .build();
-
-        UserDetails admin = User
-                .withUsername("admin")
-                .password(new BCryptPasswordEncoder(12).encode("password43"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(user, admin);
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        UserDetails user = User
+//                .withUsername("user")
+//                .password(new BCryptPasswordEncoder(12).encode("password"))
+//                .roles("USER")
+//                .build();
+//
+//        UserDetails admin = User
+//                .withUsername("admin")
+//                .password(new BCryptPasswordEncoder(12).encode("password43"))
+//                .roles("ADMIN")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(user, admin);
+//    }
 
 
 }

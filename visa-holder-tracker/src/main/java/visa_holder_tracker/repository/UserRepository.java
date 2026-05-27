@@ -5,8 +5,8 @@ import visa_holder_tracker.entity.User;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository {
+public interface UserRepository extends JpaRepository<User, String> {
     // Optional prevents null pointer exceptions
     // Spring generates the query from the method name
-    Optional<User> findByUsername(String username);
+    Optional<User> findByFullName(String fullName);
 }
