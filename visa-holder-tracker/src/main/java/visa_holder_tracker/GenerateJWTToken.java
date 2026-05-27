@@ -3,6 +3,7 @@ package visa_holder_tracker;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.KeyGenerator;
@@ -11,13 +12,11 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class GenerateJWTToken {
 
-    private String secretKey = "";
+    private String secretKey;
 
     public GenerateJWTToken(){
         try {
@@ -41,21 +40,35 @@ public class GenerateJWTToken {
         }
     }
 
-    public String generateToken(String username){
-
-        // Initialising and declaring a hashmap
-        Map<String, Object> claims = new HashMap<>();
+    public String generateToken(Authentication auth){
+        String role = auth.getAuthorities().iterator().next().getAuthority();
 
         // return the formed JWT string token
         return Jwts.builder() // Initializing a JWT token build
-                .claims() // Initializing claims to add extra data attached to the JWT
-                .add(claims) // Add extra data attached to the JWT
-                .subject(username) // Set the username as the user identifier
+                .subject(auth.getName()) // Set the username as the user identifier
+                .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis())) // Set issue date and time as now in milliseconds
                 .expiration(new Date(System.currentTimeMillis() + 300000L)) // Set the expiration of the JWT token to 5 minutes
-                .and() // Ends the claims builder
                 .signWith(getKey()) // Signs the token using a secret private key
                 .compact(); // Returns the JWT string token (Generates the token)
+    }
+
+    public String extractUsername(String token) {
+        return Jwts.parser()
+                .verifyWith((SecretKey) getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
+
+    public String extractRole(String token) {
+        return Jwts.parser()
+                .verifyWith((SecretKey) getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
     }
 
     public Key getKey(){
