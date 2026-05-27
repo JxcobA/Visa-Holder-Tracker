@@ -37,6 +37,19 @@ public class VisaHolderService {
         return repository.findAll(pageable);
     }
 
+    public Page<VisaHolder> searchVisaHoldersByName(
+            String fullName,
+            int page,
+            int size
+    ){
+        Pageable pageable = PageRequest.of(page, size);
+
+        return repository.findByFullNameContainingIgnoreCase(
+                fullName,
+                pageable
+        );
+    }
+
 
 }
 

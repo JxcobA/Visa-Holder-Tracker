@@ -1,5 +1,7 @@
 package visa_holder_tracker.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import visa_holder_tracker.entity.VisaHolder;
 
@@ -11,4 +13,9 @@ public interface VisaHolderRepository
     List<VisaHolder> findByStatus(String status);
 
     List<VisaHolder> findByVisaType(String visaType);
+
+    Page<VisaHolder> findByFullNameContainingIgnoreCase(
+            String fullName,
+            Pageable pageable
+    );
 }
