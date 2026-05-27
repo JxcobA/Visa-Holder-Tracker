@@ -17,7 +17,6 @@ import java.util.Date;
 @Service
 public class GenerateJWTToken {
 
-    //@Value("${jwt.secret}")
     private String secretKey;
 
     public GenerateJWTToken(){
