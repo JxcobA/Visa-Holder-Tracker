@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "visa_holders")
+// The following are lombrok annotations - reduces boilerplate code
 // The following are lombok annotations - reduces boilerplate code
 @Getter // Generates getter at compile time
 @Setter// Generates setter at compile time
@@ -46,4 +47,5 @@ public class VisaHolder {
     @Column(nullable = false)
     private VisaStatus status;
 
+}
 }
