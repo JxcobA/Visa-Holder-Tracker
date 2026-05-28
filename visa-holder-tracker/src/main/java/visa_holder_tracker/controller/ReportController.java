@@ -13,7 +13,7 @@ import java.util.Map;
 @RestController
 public class ReportController {
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/api/reports/summary")
     public ResponseEntity<?> generateReport(){
         // Services:
@@ -32,7 +32,7 @@ public class ReportController {
         return ResponseEntity.ok(Map.of());
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/api/reports/download/{date}")
     public ResponseEntity<?> downloadReport(
             @PathVariable

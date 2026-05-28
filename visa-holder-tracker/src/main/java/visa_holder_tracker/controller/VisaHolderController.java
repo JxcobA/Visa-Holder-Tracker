@@ -26,6 +26,7 @@ import visa_holder_tracker.service.VisaHolderService;
 
 import java.util.List;
 
+@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 @RestController
 @RequestMapping("/api/visa-holders")
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class VisaHolderController {
 
     private final VisaHolderService service;
 
-    @PostMapping
+    @PostMapping("/nothing")
     public ResponseEntity<VisaHolder> createVisaHolder(
             @Valid @RequestBody VisaHolderRequest request
             ){
@@ -103,7 +104,7 @@ public class VisaHolderController {
         return ResponseEntity.ok(expiring);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteHolder(
             @PathVariable

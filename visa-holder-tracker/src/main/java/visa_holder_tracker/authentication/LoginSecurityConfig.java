@@ -36,10 +36,7 @@ public class LoginSecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http // Spring Security configuration object
-                .csrf(csrf -> csrf // Disable CSRF protection (but allow H2 console)
-                        .ignoringRequestMatchers("/h2-console/**")
-                        .disable()
-                )
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF protection (but allow H2 console)
                 .httpBasic(AbstractHttpConfigurer::disable) // Disable http basic
                 .formLogin(AbstractHttpConfigurer::disable) // Disable browser form login
                 .headers(headers -> headers // Required for H2 console to work (frames)

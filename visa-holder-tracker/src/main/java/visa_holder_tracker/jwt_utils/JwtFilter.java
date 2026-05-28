@@ -32,6 +32,15 @@ public class JwtFilter extends OncePerRequestFilter {
         // Gets the JWT header
         String header = request.getHeader("Authorization");
 
+        String path = request.getServletPath();
+
+
+        if (path.equals("/api/auth/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
         // Checks for the valid JWT format
         if (header != null && header.startsWith("Bearer ")) {
 
