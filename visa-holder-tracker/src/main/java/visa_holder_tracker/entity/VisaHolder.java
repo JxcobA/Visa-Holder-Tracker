@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "visa_holders")
@@ -47,5 +48,7 @@ public class VisaHolder {
     @Column(nullable = false)
     private VisaStatus status;
 
-}
+    @OneToMany(mappedBy = "visaHolder")
+    private List<Movement> movements;
+
 }
