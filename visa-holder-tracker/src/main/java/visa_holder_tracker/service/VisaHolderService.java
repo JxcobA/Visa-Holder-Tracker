@@ -65,6 +65,20 @@ public class VisaHolderService {
                 .orElseThrow(() ->new RuntimeException("Visa Holder Not Found"));
     }
 
+    public VisaHolder updateVisaHolder(String passportNumber, VisaHolderRequest request){
+        VisaHolder visaHolder = repository.findByPassportNumber(passportNumber)
+                .orElseThrow(()->new RuntimeException("VIsa Holder Not Found"));
+
+        visaHolder.setFullName(request.getName());
+        visaHolder.setNationality(request.getNationality());
+        visaHolder.setVisaType(request.getVisaType());
+        visaHolder.setExpiryDate(request.getExpiryDate());
+        visaHolder.setEntryDate(request.getEntryDate());
+        visaHolder.setStatus(request.getStatus());
+
+        return repository.save(visaHolder);
+    }
+
 
 }
 

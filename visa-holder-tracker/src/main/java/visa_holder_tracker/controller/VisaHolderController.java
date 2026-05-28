@@ -73,4 +73,14 @@ public class VisaHolderController {
                 service.getVisaHolderByPassportNumber(passportNumber)
         );
     }
+
+    @PutMapping("/{passportNumber")
+    public ResponseEntity<VisaHolder> updateVisaHolder(
+            @PathVariable String passportNumber,
+            @Valid @RequestBody VisaHolderRequest request
+    ){
+        return ResponseEntity.ok(
+                service.updateVisaHolder(passportNumber, request)
+        );
+    }
 }
