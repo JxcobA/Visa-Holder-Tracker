@@ -10,6 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "visa_holders")
 // The following are lombrok annotations - reduces boilerplate code
+// The following are lombok annotations - reduces boilerplate code
 @Getter // Generates getter at compile time
 @Setter// Generates setter at compile time
 @NoArgsConstructor// Generates no args constructor at compile time
