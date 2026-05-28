@@ -14,36 +14,49 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.util.List;
 
+
+// Such that it becomes a bean
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+    // Extends from OncePerRequestFilter: to check JWT after every client request.
 
+    // Auto-injects the GenerateJWTToken bean in the JWT filter class
     @Autowired
-    GenerateJWTToken jwtService;
+    GenerateJWTToken jwtService; // Helps read and parse tokens
 
-    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        // Gets the JWT header
         String header = request.getHeader("Authorization");
 
+        // Checks for the valid JWT format
         if (header != null && header.startsWith("Bearer ")) {
+
+            // Removes the bearer prefix to only keep the token
             String token = header.substring(7);
 
+            // Extracts the username from the token
             String username = jwtService.extractUsername(token);
+
+            // Extracts the role from the token
             String role = jwtService.extractRole(token);
 
-            UsernamePasswordAuthenticationToken auth =
+            // Creates an authenticated user object.
+            UsernamePasswordAuthenticationToken user =
                     new UsernamePasswordAuthenticationToken(
-                            username,
-                            null,
-                            List.of(new SimpleGrantedAuthority(role))
+                            username, // We assign the username
+                            null, // No credentials
+                            List.of(new SimpleGrantedAuthority(role)) // Assign the role
                     );
 
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            // Stores the user in the Spring Security Context bean
+            SecurityContextHolder.getContext().setAuthentication(user);
         }
 
+        // Continues to the request
         filterChain.doFilter(request, response);
     }
 }

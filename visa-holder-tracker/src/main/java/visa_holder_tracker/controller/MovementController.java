@@ -16,7 +16,7 @@ public class MovementController {
             @PathVariable // Binds url (holderId) to a Java class
             Long holderId){
 
-        return null; // Change this such that it calls a get method. (For me Later)
+        return null; // Change this such that it calls a get method.
 
     }
 

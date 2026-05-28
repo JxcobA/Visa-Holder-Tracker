@@ -14,9 +14,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
 
+// A service bean class
 @Service
 public class GenerateJWTToken {
 
+    // Base64 encoded secret key for signing the token
     private String secretKey;
 
     public GenerateJWTToken(){
@@ -24,7 +26,7 @@ public class GenerateJWTToken {
             // Choosing "HmacSHA256" algorithm to generate keys
             KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
 
-            // Generate a random key.
+            // Generate a random secret key.
             SecretKey sk = keyGen.generateKey();
 
 
@@ -46,7 +48,7 @@ public class GenerateJWTToken {
 
         // return the formed JWT string token
         return Jwts.builder() // Initializing a JWT token build
-                .subject(auth.getName()) // Set the username as the user identifier
+                .subject(auth.getName()) // Set the username as the identifier
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis())) // Set issue date and time as now in milliseconds
                 .expiration(new Date(System.currentTimeMillis() + 300000L)) // Set the expiration of the JWT token to 5 minutes
@@ -55,6 +57,7 @@ public class GenerateJWTToken {
     }
 
     public String extractUsername(String token) {
+        // Reads the token to return the username.
         return Jwts.parser()
                 .verifyWith((SecretKey) getKey())
                 .build()
@@ -64,6 +67,7 @@ public class GenerateJWTToken {
     }
 
     public String extractRole(String token) {
+        // Reads the token to return the role.
         return Jwts.parser()
                 .verifyWith((SecretKey) getKey())
                 .build()

@@ -16,7 +16,8 @@ public class VisaHolderController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteHolder(
             @PathVariable
-            Long id){
+            String id){
+
 
         try {
             // Need a delete method to pass the id to delete

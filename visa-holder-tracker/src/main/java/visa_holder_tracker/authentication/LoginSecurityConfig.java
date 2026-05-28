@@ -19,18 +19,21 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import visa_holder_tracker.jwt_utils.JwtFilter;
 
-@Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
+@Configuration // Becomes the configuration bean class
+@EnableWebSecurity // Enables endpoint security for request access
+@EnableMethodSecurity // Enables method security for role access
 public class LoginSecurityConfig {
     /// Provider: How to authenticate
     /// Manager: Handles authentication process
 
+    // Injects our custom JWT filter
     private final JwtFilter jwtFilter;
 
+    // Constructor to inject JWT Filter (Maybe I should do autowired instead)
     public LoginSecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
+
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,7 +41,7 @@ public class LoginSecurityConfig {
         http // Spring Security configuration object
                 .csrf(csrf -> csrf.disable()) // Disable CSRF protection
                 .httpBasic(AbstractHttpConfigurer::disable) // Disable http basic
-                .formLogin(AbstractHttpConfigurer::disable) // Disable browser form login
+                .formLogin(AbstractHttpConfigurer::disable) // Disable the browser login page
                 .authorizeHttpRequests(auth -> auth // Manages endpoint authorization
                         .requestMatchers("/api/auth/login").permitAll() // Permit any request to the mentioned endpoints
                         .anyRequest().authenticated() // Any other request fall under the default authentication.
@@ -57,11 +60,10 @@ public class LoginSecurityConfig {
         // Used to tell spring how to verify passwords using BCrypt
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
 
-        // Set where to load users from
+        // Set where to load users from (In memory, at least until I have a database to work with)
         provider.setUserDetailsService(userDetailsService);
         return provider;
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
