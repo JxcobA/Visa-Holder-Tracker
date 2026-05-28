@@ -19,7 +19,7 @@ import java.util.List;
 
 
 public interface VisaHolderRepository
-        extends JpaRepository<VisaHolder, Long> {
+        extends JpaRepository<VisaHolder, String> {
 
     Page<VisaHolder> findByStatus(
             VisaStatus status,

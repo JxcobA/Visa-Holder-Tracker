@@ -1,23 +1,25 @@
 package visa_holder_tracker.controller;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import visa_holder_tracker.entity.Movement;
+import visa_holder_tracker.service.MovementService;
 
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
 @RequestMapping("api/movements")
+@RequiredArgsConstructor
 public class MovementController {
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    @GetMapping("/{holderId}")
-    public List<String> movementEvent(
-            @PathVariable // Binds url (holderId) to a Java class
-            Long holderId){
+    private final MovementService movementService;
 
-        return null; // Change this such that it calls a get method.
-
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/{passportNumber}")
+    public ResponseEntity<List<Movement>> getMovements(
+            @PathVariable String passportNumber) {
+        return ResponseEntity.ok(movementService.getMovementsByHolderId(passportNumber));
     }
-
 }
