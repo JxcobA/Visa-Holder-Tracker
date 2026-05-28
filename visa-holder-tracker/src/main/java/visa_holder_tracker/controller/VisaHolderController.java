@@ -7,30 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController
-@RequestMapping("/api/visa-holders")
-public class VisaHolderController {
-
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteHolder(
-            @PathVariable
-            String id){
-
-
-        try {
-            // Need a delete method to pass the id to delete
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {// Exception catcher needs to be changed
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @GetMapping("/expiring-soon")
-    public ResponseEntity<?> visasExpiringSoon(){
-        return ResponseEntity.ok(Map.of());
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -45,7 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import visa_holder_tracker.entity.VisaHolder;
+import visa_holder_tracker.entity.*;
 import visa_holder_tracker.service.VisaHolderService;
 
 import java.util.List;
@@ -56,10 +32,6 @@ import java.util.List;
 public class VisaHolderController {
 
     private final VisaHolderService service;
-
-    public VisaHolderController(VisaHolderService service) {
-        this.service = service;
-    }
 
     @PostMapping
     public ResponseEntity<VisaHolder> createVisaHolder(
@@ -112,14 +84,16 @@ public class VisaHolderController {
         );
     }
 
-    @PutMapping("/{passportNumber")
+    @PutMapping("/{passportNumber}")
     public ResponseEntity<VisaHolder> updateVisaHolder(
             @PathVariable String passportNumber,
             @Valid @RequestBody VisaHolderRequest request
-    ){
+    ) {
         return ResponseEntity.ok(
                 service.updateVisaHolder(passportNumber, request)
         );
+    }
+
     @GetMapping("/expiring-soon")
     public ResponseEntity<List<VisaHolder>> getExpiringSoon(
             // Defaults to 30 if no value provided
@@ -127,5 +101,20 @@ public class VisaHolderController {
 
         List<VisaHolder> expiring = service.getExpiringSoon(days);
         return ResponseEntity.ok(expiring);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteHolder(
+            @PathVariable
+                    Long id) {
+
+
+        try {
+            // Need a delete method to pass the id to delete
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {// Exception catcher needs to be changed
+            return ResponseEntity.notFound().build();
+        }
     }
 }

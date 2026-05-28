@@ -10,13 +10,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import visa_holder_tracker.config.CustomUserDetailsService;
 import visa_holder_tracker.jwt_utils.JwtFilter;
 
 @Configuration // Becomes the configuration bean class
@@ -39,11 +36,18 @@ public class LoginSecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http // Spring Security configuration object
-                .csrf(csrf -> csrf.disable()) // Disable CSRF protection
+                .csrf(csrf -> csrf // Disable CSRF protection (but allow H2 console)
+                        .ignoringRequestMatchers("/h2-console/**")
+                        .disable()
+                )
                 .httpBasic(AbstractHttpConfigurer::disable) // Disable http basic
-                .formLogin(AbstractHttpConfigurer::disable) // Disable the browser login page
+                .formLogin(AbstractHttpConfigurer::disable) // Disable browser form login
+                .headers(headers -> headers // Required for H2 console to work (frames)
+                        .frameOptions(frame -> frame.sameOrigin())
+                )
                 .authorizeHttpRequests(auth -> auth // Manages endpoint authorization
-                        .requestMatchers("/api/auth/login").permitAll() // Permit any request to the mentioned endpoints
+                        // Allow H2 console access.
+                        .requestMatchers("/api/auth/login", "/h2-console/**").permitAll() // Permit any request to the mentioned endpoints
                         .anyRequest().authenticated() // Any other request fall under the default authentication.
                 );
 
@@ -53,7 +57,7 @@ public class LoginSecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService){
+    public AuthenticationProvider authenticationProvider(CustomUserDetailsService userDetailsService){
         // Use database backed authentication through UserDetailsService
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 
@@ -71,23 +75,23 @@ public class LoginSecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // Temporal for testing should be removed once we have our database getting the details
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User
-                .withUsername("user")
-                .password(new BCryptPasswordEncoder(12).encode("password"))
-                .roles("USER")
-                .build();
-
-        UserDetails admin = User
-                .withUsername("admin")
-                .password(new BCryptPasswordEncoder(12).encode("password43"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(user, admin);
-    }
+    // Temporal for testing should be removed once we have our database grabbing the details
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        UserDetails user = User
+//                .withUsername("user")
+//                .password(new BCryptPasswordEncoder(12).encode("password"))
+//                .roles("USER")
+//                .build();
+//
+//        UserDetails admin = User
+//                .withUsername("admin")
+//                .password(new BCryptPasswordEncoder(12).encode("password43"))
+//                .roles("ADMIN")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(user, admin);
+//    }
 
 
 }

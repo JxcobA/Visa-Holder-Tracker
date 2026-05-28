@@ -6,4 +6,3 @@ public enum VisaStatus {
     EXPIRED
     // Could add more values like EXPIRING_SOON or OVERSTAY for filtering and compliance
 }
-}
