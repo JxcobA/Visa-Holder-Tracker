@@ -13,7 +13,7 @@ import java.util.Map;
 @RestController
 public class ReportController {
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/api/reports/summary")
     public ResponseEntity<?> generateReport(){
         // Services:

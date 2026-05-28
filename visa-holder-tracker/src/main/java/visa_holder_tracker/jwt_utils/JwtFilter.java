@@ -53,6 +53,7 @@ public class JwtFilter extends OncePerRequestFilter {
             // Extracts the role from the token
             String role = jwtService.extractRole(token);
 
+
             // Creates an authenticated user object.
             UsernamePasswordAuthenticationToken user =
                     new UsernamePasswordAuthenticationToken(
@@ -63,6 +64,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
             // Stores the user in the Spring Security Context bean
             SecurityContextHolder.getContext().setAuthentication(user);
+
         }
 
         // Continues to the request

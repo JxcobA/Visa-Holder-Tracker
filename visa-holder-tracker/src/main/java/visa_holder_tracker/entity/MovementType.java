@@ -1,6 +1,6 @@
 package visa_holder_tracker.entity;
 
-public enum Movementype {
+public enum MovementType {
     ENTRY,
     EXIT
 }

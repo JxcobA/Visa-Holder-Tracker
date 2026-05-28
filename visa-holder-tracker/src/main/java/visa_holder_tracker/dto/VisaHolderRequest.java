@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 public class VisaHolderRequest {
     @NotBlank
-    private String name;
+    private String fullName;
 
     @NotBlank
     private String nationality;

@@ -2,6 +2,7 @@ package visa_holder_tracker.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -35,11 +36,11 @@ public class VisaHolder {
     @Column(nullable = false)
     private String visaType;
 
-    @NotBlank(message = "Visa expiry date is required")
+    @NotNull(message = "Visa expiry date is required")
     @Column(nullable = false)
     private LocalDateTime expiryDate;
 
-    @NotBlank(message = "Entry date is required")
+    @NotNull(message = "Entry date is required")
     @Column(nullable = false)
     private LocalDateTime entryDate;
 

@@ -5,18 +5,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import visa_holder_tracker.dto.VisaHolderRequest;
 import visa_holder_tracker.entity.VisaHolder;
 import visa_holder_tracker.entity.VisaStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +23,7 @@ import visa_holder_tracker.service.VisaHolderService;
 
 import java.util.List;
 
-@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
 @RestController
 @RequestMapping("/api/visa-holders")
 @RequiredArgsConstructor
@@ -34,7 +31,7 @@ public class VisaHolderController {
 
     private final VisaHolderService service;
 
-    @PostMapping("/nothing")
+    @PostMapping
     public ResponseEntity<VisaHolder> createVisaHolder(
             @Valid @RequestBody VisaHolderRequest request
             ){
@@ -104,18 +101,13 @@ public class VisaHolderController {
         return ResponseEntity.ok(expiring);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{passportNumber}")
     public ResponseEntity<?> deleteHolder(
-            @PathVariable
-                    Long id) {
+            @PathVariable String passportNumber) {
 
+        service.deleteVisaHolder(passportNumber);
 
-        try {
-            // Need a delete method to pass the id to delete
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {// Exception catcher needs to be changed
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.noContent().build();
     }
 }
