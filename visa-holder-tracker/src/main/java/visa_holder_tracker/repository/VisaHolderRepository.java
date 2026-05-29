@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import visa_holder_tracker.entity.VisaHolder;
 import visa_holder_tracker.entity.VisaStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +37,8 @@ public interface VisaHolderRepository
 
     Optional<VisaHolder> findByPassportNumber(String passportNumber);
 
+    long countByStatus(VisaStatus status);
+
     @Query("SELECT v FROM VisaHolder v WHERE v.expiryDate BETWEEN :today AND :cutoff")
     List<VisaHolder> findExpiringSoon(
             @Param("today") LocalDate today,
@@ -44,4 +47,10 @@ public interface VisaHolderRepository
 
     @Query("SELECT v FROM VisaHolder v WHERE v.expiryDate < :today")
     List<VisaHolder> findExpired(@Param("today") LocalDate today);
+
+    @Query("SELECT v FROM VisaHolder v WHERE v.expiryDate < :today AND v.status = :status")
+    List<VisaHolder> findOverstayed(
+            @Param("today") LocalDateTime today,
+            @Param("status") VisaStatus status
+    );
 }

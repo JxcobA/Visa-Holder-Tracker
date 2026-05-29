@@ -6,6 +6,7 @@ import visa_holder_tracker.entity.VisaHolder;
 import visa_holder_tracker.repository.VisaHolderRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -85,7 +86,6 @@ public class VisaHolderService {
         return repository.save(visaHolder);
     }
 
-
     // (After merging and testing) AWS notification logic can be written and triggered from here
     public List<VisaHolder> getExpiringSoon(int days) {
         LocalDate today = LocalDate.now();
@@ -103,6 +103,15 @@ public class VisaHolderService {
                 .orElseThrow(()->new RuntimeException("Visa Holder Not Found"));
 
         repository.delete(visaHolder);
+    }
+
+    public Long countActive() {
+        return repository.countByStatus(VisaStatus.ACTIVE);
+    }
+
+    public List<VisaHolder> getOverstayed() {
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        return repository.findOverstayed(today, VisaStatus.ACTIVE);
     }
 
 }

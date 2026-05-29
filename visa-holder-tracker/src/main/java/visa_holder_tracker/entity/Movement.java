@@ -1,9 +1,14 @@
 package visa_holder_tracker.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
+@Getter
+@Setter
 @Entity
 public class Movement {
 
@@ -21,5 +26,5 @@ public class Movement {
             referencedColumnName = "passportNumber",
             nullable = false
     )
-    private VisaHolder visaHolder;
+    private Optional<VisaHolder> visaHolder;
 }

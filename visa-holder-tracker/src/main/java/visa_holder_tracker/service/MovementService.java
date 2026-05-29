@@ -2,18 +2,39 @@ package visa_holder_tracker.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import visa_holder_tracker.dto.MovementRequest;
+import visa_holder_tracker.dto.VisaHolderRequest;
 import visa_holder_tracker.entity.Movement;
+import visa_holder_tracker.entity.MovementType;
+import visa_holder_tracker.entity.VisaHolder;
 import visa_holder_tracker.repository.MovementRepository;
+import visa_holder_tracker.repository.VisaHolderRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class MovementService {
 
     private final MovementRepository movementRepository;
+    private final VisaHolderRepository visaHolderRepository;
 
     public List<Movement> getMovementsByHolderId(String passportNumber) {
         return movementRepository.findByVisaHolderPassportNumber(passportNumber);
+    }
+
+    public Movement logMovement(MovementRequest request) {
+        Optional<VisaHolder> holder = visaHolderRepository.findByPassportNumber(request.getPassportNumber());
+        Movement movement = new Movement();
+        movement.setVisaHolder(holder);
+
+        if (request.getType() == MovementType.ENTRY) {
+            movement.setEntryDate(request.getDate());
+        } else {
+            movement.setExitDate(request.getDate());
+        }
+
+        return movementRepository.save(movement);
     }
 }
