@@ -10,11 +10,18 @@ import visa_holder_tracker.service.MovementService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/movements")
 @RequiredArgsConstructor
 public class MovementController {
 
     private final MovementService movementService;
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PostMapping("api/movements")
+    public ResponseEntity<?> logEntry(
+            @PathVariable String passportNumber) {
+
+        return ResponseEntity.noContent().build();
+    }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{passportNumber}")
