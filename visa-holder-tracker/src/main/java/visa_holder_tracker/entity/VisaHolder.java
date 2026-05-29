@@ -36,6 +36,9 @@ public class VisaHolder {
     @Column(nullable = false)
     private String visaType;
 
+    // Datatype mismatch LocalDateTime used here but
+    // getExpiringSoon and getExpired methods are LocalDate, is just inconsistent, I recommend LocalDate.
+    // but do check for errors
     @NotNull(message = "Visa expiry date is required")
     @Column(nullable = false)
     private LocalDateTime expiryDate;

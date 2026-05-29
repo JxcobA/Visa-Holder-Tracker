@@ -11,12 +11,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/movements")
 public class MovementController {
 
     private final MovementService movementService;
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @PostMapping("api/movements")
+    @PostMapping
     public ResponseEntity<?> logEntry(
             @PathVariable String passportNumber) {
 

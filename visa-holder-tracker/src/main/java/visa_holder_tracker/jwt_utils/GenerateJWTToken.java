@@ -3,6 +3,7 @@ package visa_holder_tracker.jwt_utils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.Date;
 public class GenerateJWTToken {
 
     // Base64 encoded secret key for signing the token
+    @Value("${jwt.secretkey}")
     private String secretKey;
 
     public GenerateJWTToken(){
@@ -31,7 +33,6 @@ public class GenerateJWTToken {
 
             // If "HmacSHA256" is the algorithm to create keys.
             // Then what algorithm is sk.getEncoded() using to encode itself?
-
             // Encode the key and encode and convert the encoded key to string using base 64.
             secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
 

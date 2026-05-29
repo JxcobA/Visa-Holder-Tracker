@@ -1,11 +1,9 @@
 package visa_holder_tracker.controller;
 
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -29,7 +27,13 @@ public class ReportController {
         // A method to call to get a list of the holder's movements by passing the holder's id. Should affect the database too
         // A method to call to add movements (Entry / Exit) Should affect the database too
         //
-        return ResponseEntity.ok(Map.of());
+
+        return ResponseEntity.ok(Map.of(
+                "active", {},
+                "expired", {},
+                "overstay", {},
+                "expiringSoon", {}
+        ));
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
