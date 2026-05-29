@@ -41,12 +41,12 @@ public interface VisaHolderRepository
 
     @Query("SELECT v FROM VisaHolder v WHERE v.expiryDate BETWEEN :today AND :cutoff")
     List<VisaHolder> findExpiringSoon(
-            @Param("today") LocalDate today,
-            @Param("cutoff") LocalDate cutoff
+            @Param("today") LocalDateTime today,
+            @Param("cutoff") LocalDateTime cutoff
     );
 
     @Query("SELECT v FROM VisaHolder v WHERE v.expiryDate < :today")
-    List<VisaHolder> findExpired(@Param("today") LocalDate today);
+    List<VisaHolder> findExpired(@Param("today") LocalDateTime today);
 
     @Query("SELECT v FROM VisaHolder v WHERE v.expiryDate < :today AND v.status = :status")
     List<VisaHolder> findOverstayed(

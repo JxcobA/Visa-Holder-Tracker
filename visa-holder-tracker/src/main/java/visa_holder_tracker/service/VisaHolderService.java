@@ -88,13 +88,15 @@ public class VisaHolderService {
 
     // (After merging and testing) AWS notification logic can be written and triggered from here
     public List<VisaHolder> getExpiringSoon(int days) {
-        LocalDate today = LocalDate.now();
-        LocalDate cutoff = LocalDate.now().plusDays(days);
+
+        // Newlife: Use LocalDateTime to prevent data type mismatches, that's all.
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime cutoff = LocalDate.now().plusDays(days).atStartOfDay();
         return repository.findExpiringSoon(today, cutoff);
     }
 
     public List<VisaHolder> getExpired() {
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDate.now().atStartOfDay();
         return repository.findExpired(today);
     }
 

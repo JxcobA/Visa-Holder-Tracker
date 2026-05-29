@@ -32,7 +32,7 @@ public class ReportController {
     @GetMapping("/api/reports/download/{date}")
     public ResponseEntity<?> downloadReport(
             @PathVariable
-            String input
+            String date
     ){
         return ResponseEntity.ok(Map.of());
     }

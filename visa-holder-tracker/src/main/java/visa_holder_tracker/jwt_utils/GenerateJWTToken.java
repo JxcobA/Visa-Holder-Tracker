@@ -51,7 +51,7 @@ public class GenerateJWTToken {
                 .subject(auth.getName()) // Set the username as the identifier
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis())) // Set issue date and time as now in milliseconds
-                .expiration(new Date(System.currentTimeMillis() + 300000L)) // Set the expiration of the JWT token to 5 minutes
+                .expiration(new Date(System.currentTimeMillis() + 300000L*67)) // Set the expiration of the JWT token to 5 minutes
                 .signWith(getKey()) // Signs the token using a secret private key
                 .compact(); // Returns the JWT string token (Generates the token)
     }
