@@ -25,7 +25,9 @@ public class MovementService {
     }
 
     public Movement logMovement(MovementRequest request) {
-        Optional<VisaHolder> holder = visaHolderRepository.findByPassportNumber(request.getPassportNumber());
+        VisaHolder holder = visaHolderRepository.findByPassportNumber(request.getPassportNumber())
+                .orElseThrow(() -> new RuntimeException("Visa Holder Not Found"));
+
         Movement movement = new Movement();
         movement.setVisaHolder(holder);
 

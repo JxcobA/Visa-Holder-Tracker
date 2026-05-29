@@ -7,9 +7,10 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.Optional;
 
+
+@Entity
 @Getter
 @Setter
-@Entity
 public class Movement {
 
     @Id
@@ -26,5 +27,5 @@ public class Movement {
             referencedColumnName = "passportNumber",
             nullable = false
     )
-    private Optional<VisaHolder> visaHolder;
+    private VisaHolder visaHolder;
 }
