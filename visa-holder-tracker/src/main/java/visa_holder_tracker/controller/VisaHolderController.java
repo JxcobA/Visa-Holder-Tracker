@@ -23,7 +23,7 @@ import visa_holder_tracker.service.VisaHolderService;
 
 import java.util.List;
 
-@PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
+@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 @RestController
 @RequestMapping("/api/visa-holders")
 @RequiredArgsConstructor

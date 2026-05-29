@@ -32,11 +32,11 @@ public class ReportController {
         return ResponseEntity.ok(Map.of());
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/api/reports/download/{date}")
     public ResponseEntity<?> downloadReport(
             @PathVariable
-            RequestEntity<String> input
+            String input
     ){
         return ResponseEntity.ok(Map.of());
     }
