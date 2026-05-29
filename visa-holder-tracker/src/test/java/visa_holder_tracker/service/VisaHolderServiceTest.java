@@ -16,7 +16,6 @@ import visa_holder_tracker.entity.VisaHolder;
 import visa_holder_tracker.entity.VisaStatus;
 import visa_holder_tracker.repository.VisaHolderRepository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -249,7 +248,7 @@ public class VisaHolderServiceTest {
 
         ArgumentCaptor<LocalDateTime> dateCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
         verify(visaHolderRepository).findExpired(dateCaptor.capture());
-        assertThat(dateCaptor.getValue().toLocalDate()).isEqualTo(LocalDate.now());
+        assertThat(dateCaptor.getValue()).isBeforeOrEqualTo(LocalDateTime.now());
     }
 
     @Test

@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.Setter;
 import visa_holder_tracker.entity.VisaStatus;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter

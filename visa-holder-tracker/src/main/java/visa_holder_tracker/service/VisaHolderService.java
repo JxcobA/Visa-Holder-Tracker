@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import visa_holder_tracker.entity.VisaHolder;
 import visa_holder_tracker.repository.VisaHolderRepository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -90,13 +89,13 @@ public class VisaHolderService {
     public List<VisaHolder> getExpiringSoon(int days) {
 
         // Newlife: Use LocalDateTime to prevent data type mismatches, that's all.
-        LocalDateTime today = LocalDate.now().atStartOfDay();
-        LocalDateTime cutoff = LocalDate.now().plusDays(days).atStartOfDay();
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime cutoff = LocalDateTime.now().plusDays(days);
         return repository.findExpiringSoon(today, cutoff);
     }
 
     public List<VisaHolder> getExpired() {
-        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime today = LocalDateTime.now();
         return repository.findExpired(today);
     }
 
@@ -112,7 +111,7 @@ public class VisaHolderService {
     }
 
     public List<VisaHolder> getOverstayed() {
-        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime today = LocalDateTime.now();
         return repository.findOverstayed(today, VisaStatus.ACTIVE);
     }
 

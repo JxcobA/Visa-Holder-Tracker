@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import visa_holder_tracker.entity.MovementType;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -20,5 +20,5 @@ public class MovementRequest {
     private MovementType type;
 
     @NotNull
-    private LocalDate date;
+    private LocalDateTime date;
 }
