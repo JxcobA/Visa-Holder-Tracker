@@ -260,4 +260,67 @@ public class VisaHolderServiceTest {
         assertThat(result).isEqualTo(5L);
         verify(visaHolderRepository).countByStatus(VisaStatus.ACTIVE);
     }
+
+    // Doesn't validate, tests what actually happens
+    @Test
+    void createVisaHolder_nullFullName_savesWithNull() {
+        VisaHolderRequest req = buildRequest("PN999", null, "British", "Student", VisaStatus.ACTIVE, LocalDateTime.now().plusYears(1), LocalDateTime.now().minusDays(1));
+
+        VisaHolder expected = buildHolder(req);
+        when(visaHolderRepository.save(any())).thenReturn(expected);
+
+        VisaHolder result = visaHolderService.createVisaHolder(req);
+
+        assertThat(result.getFullName()).isNull();
+    }
+
+    @Test
+    void createVisaHolder_nullStatus_savesWithNull() {
+        VisaHolderRequest req = buildRequest("PN999", "Test Name", "British", "Student", null, LocalDateTime.now().plusYears(1), LocalDateTime.now().minusDays(1));
+
+        when(visaHolderRepository.save(any())).thenReturn(buildHolder(req));
+
+        VisaHolder result = visaHolderService.createVisaHolder(req);
+
+        assertThat(result.getStatus()).isNull();
+    }
+
+    @Test
+    void createVisaHolder_expiryDateInPast_serviceStillSaves() {
+        VisaHolderRequest req = buildRequest("PN999", "Test Name", "British", "Student", VisaStatus.ACTIVE, LocalDateTime.now().minusDays(1), LocalDateTime.now().minusMonths(1));
+
+        VisaHolder expected = buildHolder(req);
+        when(visaHolderRepository.save(any())).thenReturn(expected);
+
+        VisaHolder result = visaHolderService.createVisaHolder(req);
+
+        assertThat(result.getExpiryDate()).isBefore(LocalDateTime.now());
+    }
+
+    @Test
+    void createVisaHolder_entryDateInFuture_serviceStillSaves() {
+        VisaHolderRequest req = buildRequest("PN999", "Test Name", "British", "Student", VisaStatus.ACTIVE, LocalDateTime.now().plusYears(1), LocalDateTime.now().plusDays(10));  // ← entry in the future
+
+        VisaHolder expected = buildHolder(req);
+        when(visaHolderRepository.save(any())).thenReturn(expected);
+
+        VisaHolder result = visaHolderService.createVisaHolder(req);
+
+        assertThat(result.getEntryDate()).isAfter(LocalDateTime.now());
+    }
+
+    @Test
+    void createVisaHolder_expiryBeforeEntry_serviceStillSaves() {
+        // Potential gap in business logic
+        LocalDateTime entry = LocalDateTime.now().minusMonths(1);
+        LocalDateTime expiry = entry.minusDays(1); // expiry before entry
+
+        VisaHolderRequest req = buildRequest("PN999", "Test Name", "British", "Student", VisaStatus.ACTIVE, expiry, entry);
+
+        when(visaHolderRepository.save(any())).thenReturn(buildHolder(req));
+
+        VisaHolder result = visaHolderService.createVisaHolder(req);
+
+        assertThat(result.getExpiryDate()).isBefore(result.getEntryDate());
+    }
 }
