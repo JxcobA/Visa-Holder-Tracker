@@ -214,27 +214,23 @@ public class VisaHolderServiceTest {
 
     @Test
     void getExpiringSoon_returnsList() {
-        // Capture the args actually passed to the repository and verify their relationship is correct:
-        // e.g. (cutoff = today + 30 days), rather than asserting exact date values
         List<VisaHolder> mockList = List.of(buildHolder(validRequest));
-        when(visaHolderRepository.findExpiringSoon(any(LocalDate.class), any(LocalDate.class))).thenReturn(mockList);
+        when(visaHolderRepository.findExpiringSoon(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(mockList);
 
         List<VisaHolder> result = visaHolderService.getExpiringSoon(30);
 
         assertThat(result).hasSize(1);
 
-        // Capture the dates passed to the repository
-        ArgumentCaptor<LocalDate> todayCaptor = ArgumentCaptor.forClass(LocalDate.class);
-        ArgumentCaptor<LocalDate> cutoffCaptor = ArgumentCaptor.forClass(LocalDate.class);
+        ArgumentCaptor<LocalDateTime> todayCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        ArgumentCaptor<LocalDateTime> cutoffCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
         verify(visaHolderRepository).findExpiringSoon(todayCaptor.capture(), cutoffCaptor.capture());
 
-        // Cutoff should be  30 days after the today value that was passed
         assertThat(cutoffCaptor.getValue()).isEqualTo(todayCaptor.getValue().plusDays(30));
     }
 
     @Test
     void getExpiringSoon_noneExpiring_returnsEmptyList() {
-        when(visaHolderRepository.findExpiringSoon(any(LocalDate.class), any(LocalDate.class)))
+        when(visaHolderRepository.findExpiringSoon(any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(List.of());
 
         List<VisaHolder> result = visaHolderService.getExpiringSoon(30);
@@ -242,19 +238,18 @@ public class VisaHolderServiceTest {
         assertThat(result).isEmpty();
     }
 
-    // This test may fail - if so likely cause is that service doesn't use current date
     @Test
     void getExpired_returnsExpiredHolders() {
         List<VisaHolder> mockExpired = List.of(buildHolder(validRequest));
-        when(visaHolderRepository.findExpired(any(LocalDate.class))).thenReturn(mockExpired);
-        // Return expired VisaHolder
+        when(visaHolderRepository.findExpired(any(LocalDateTime.class))).thenReturn(mockExpired);
+
         List<VisaHolder> result = visaHolderService.getExpired();
-        // Checks it was returned correctly
+
         assertThat(result).hasSize(1);
-        // Checks the service is using current date (?)
-        ArgumentCaptor<LocalDate> dateCaptor = ArgumentCaptor.forClass(LocalDate.class);
+
+        ArgumentCaptor<LocalDateTime> dateCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
         verify(visaHolderRepository).findExpired(dateCaptor.capture());
-        assertThat(dateCaptor.getValue()).isEqualTo(LocalDate.now());
+        assertThat(dateCaptor.getValue().toLocalDate()).isEqualTo(LocalDate.now());
     }
 
     @Test
