@@ -21,8 +21,12 @@ import visa_holder_tracker.entity.VisaStatus;
 public class VisaHolderService {
     private final VisaHolderRepository repository;
 
-    public VisaHolderService(VisaHolderRepository repository) {
+    private final SqsNotificationService sqsNotificationService;
+
+
+    public VisaHolderService(VisaHolderRepository repository, SqsNotificationService sqsNotificationService) {
         this.repository = repository;
+        this.sqsNotificationService = sqsNotificationService;
     }
 
     public VisaHolder createVisaHolder(VisaHolderRequest request){
@@ -87,11 +91,11 @@ public class VisaHolderService {
 
     // (After merging and testing) AWS notification logic can be written and triggered from here
     public List<VisaHolder> getExpiringSoon(int days) {
-
-        // Newlife: Use LocalDateTime to prevent data type mismatches, that's all.
         LocalDateTime today = LocalDateTime.now();
-        LocalDateTime cutoff = LocalDateTime.now().plusDays(days);
-        return repository.findExpiringSoon(today, cutoff);
+        LocalDateTime cutoff = today.plusDays(days);
+        List<VisaHolder> expiring = repository.findExpiringSoon(today, cutoff);
+        expiring.forEach(sqsNotificationService::notifyExpiringSoon); // ← fire SQS
+        return expiring;
     }
 
     public List<VisaHolder> getExpired() {
@@ -112,7 +116,9 @@ public class VisaHolderService {
 
     public List<VisaHolder> getOverstayed() {
         LocalDateTime today = LocalDateTime.now();
-        return repository.findOverstayed(today, VisaStatus.ACTIVE);
+        List<VisaHolder> overstayed = repository.findOverstayed(today, VisaStatus.ACTIVE);
+        overstayed.forEach(sqsNotificationService::notifyOverstay);
+        return overstayed;
     }
 
 }

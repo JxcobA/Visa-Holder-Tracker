@@ -51,4 +51,12 @@ public interface VisaHolderRepository
             @Param("today") LocalDateTime today,
             @Param("status") VisaStatus status
     );
+
+    @Query("SELECT v FROM VisaHolder v WHERE v.entryDate >= :start AND v.entryDate < :end")
+    List<VisaHolder> findByEntryDateBetween(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+
 }

@@ -22,26 +22,28 @@ public class GenerateJWTToken {
     @Value("${jwt.secretkey}")
     private String secretKey;
 
-    public GenerateJWTToken(){
-        try {
-            // Choosing "HmacSHA256" algorithm to generate keys
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
 
-            // Generate a random secret key.
-            SecretKey sk = keyGen.generateKey();
-
-
-            // If "HmacSHA256" is the algorithm to create keys.
-            // Then what algorithm is sk.getEncoded() using to encode itself?
-            // Encode the key and encode and convert the encoded key to string using base 64.
-            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-
-        } catch (NoSuchAlgorithmException e){ // Catch unrecognized algorithms
-
-            // Throw a runtime exception error
-            throw new RuntimeException(e);
-        }
-    }
+    // This is now redundant but showcases the original design
+//    public GenerateJWTToken(){
+//        try {
+//            // Choosing "HmacSHA256" algorithm to generate keys
+//            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
+//
+//            // Generate a random secret key.
+//            SecretKey sk = keyGen.generateKey();
+//
+//
+//            // If "HmacSHA256" is the algorithm to create keys.
+//            // Then what algorithm is sk.getEncoded() using to encode itself?
+//            // Encode the key and encode and convert the encoded key to string using base 64.
+//            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
+//
+//        } catch (NoSuchAlgorithmException e){ // Catch unrecognized algorithms
+//
+//            // Throw a runtime exception error
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public String generateToken(Authentication auth){
         String role = auth.getAuthorities().iterator().next().getAuthority();
