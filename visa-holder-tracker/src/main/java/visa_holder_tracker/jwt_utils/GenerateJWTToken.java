@@ -7,11 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 
 // A service bean class
@@ -19,31 +15,11 @@ import java.util.Date;
 public class GenerateJWTToken {
 
     // Base64 encoded secret key for signing the token
-    @Value("${jwt.secretkey}")
-    private String secretKey;
+    private final SecretKey secretKey;
 
-
-    // This is now redundant but showcases the original design
-//    public GenerateJWTToken(){
-//        try {
-//            // Choosing "HmacSHA256" algorithm to generate keys
-//            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-//
-//            // Generate a random secret key.
-//            SecretKey sk = keyGen.generateKey();
-//
-//
-//            // If "HmacSHA256" is the algorithm to create keys.
-//            // Then what algorithm is sk.getEncoded() using to encode itself?
-//            // Encode the key and encode and convert the encoded key to string using base 64.
-//            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-//
-//        } catch (NoSuchAlgorithmException e){ // Catch unrecognized algorithms
-//
-//            // Throw a runtime exception error
-//            throw new RuntimeException(e);
-//        }
-//    }
+    public GenerateJWTToken(@Value("${jwt.secretkey}") String secretKey){
+        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+    }
 
     public String generateToken(Authentication auth){
         String role = auth.getAuthorities().iterator().next().getAuthority();
@@ -54,14 +30,14 @@ public class GenerateJWTToken {
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis())) // Set issue date and time as now in milliseconds
                 .expiration(new Date(System.currentTimeMillis() + 300000L*67)) // Set the expiration of the JWT token to 5 minutes
-                .signWith(getKey()) // Signs the token using a secret private key
+                .signWith(this.secretKey) // Signs the token using a secret private key
                 .compact(); // Returns the JWT string token (Generates the token)
     }
 
     public String extractUsername(String token) {
         // Reads the token to return the username.
         return Jwts.parser()
-                .verifyWith((SecretKey) getKey())
+                .verifyWith((SecretKey) this.secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
@@ -71,18 +47,10 @@ public class GenerateJWTToken {
     public String extractRole(String token) {
         // Reads the token to return the role.
         return Jwts.parser()
-                .verifyWith((SecretKey) getKey())
+                .verifyWith((SecretKey) this.secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .get("role", String.class);
-    }
-
-    public Key getKey(){
-        // Decode the key using base 64 and convert it to the byte datatype
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-
-        // Perform something on the key bytes? And return the key in byte datatype
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

@@ -45,7 +45,8 @@ public class LoginSecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth // Manages endpoint authorization
                         // Allow H2 console access.
-                        .requestMatchers("/api/auth/**", "/h2-console/**").permitAll() // Permit any request to the mentioned endpoints
+                        .requestMatchers("/api/auth/login", "/h2-console/**", "/actuator/health",
+                                "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Permit any request to the mentioned endpoints
                         .anyRequest().authenticated() // Any other request fall under the default authentication.
                 )
                 .exceptionHandling(ex -> ex // Registeres an entry point so 401 doesn't fall back to 403

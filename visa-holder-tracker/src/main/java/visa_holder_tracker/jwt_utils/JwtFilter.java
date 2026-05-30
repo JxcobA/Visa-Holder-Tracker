@@ -40,29 +40,20 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-
-        // Checks for the valid JWT format
-        try {
-            if (header != null && header.startsWith("Bearer ")) {
-                String token = header.substring(7);
-
+        if (header != null && header.startsWith("Bearer ")) {
+            // Removes the bearer prefix to only keep the token
+            String token = header.substring(7);
+            try {
+                // Extracts the username from the token
                 String username = jwtService.extractUsername(token);
+                // Extracts the role from the token
                 String role = jwtService.extractRole(token);
-
-                System.out.println("JWT username: " + username);
-                System.out.println("JWT role: " + role);
-
-                UsernamePasswordAuthenticationToken user =
-                        new UsernamePasswordAuthenticationToken(
-                                username,
-                                null,
-                                List.of(new SimpleGrantedAuthority(role))
-                        );
-
-                SecurityContextHolder.getContext().setAuthentication(user);
+                var authToken = new UsernamePasswordAuthenticationToken(
+                        username, null, List.of(new SimpleGrantedAuthority(role)));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
             }
-        } catch (Exception e) {
-            System.out.println("JWT ERROR: " + e.getMessage());
         }
 
         // Continues to the request
