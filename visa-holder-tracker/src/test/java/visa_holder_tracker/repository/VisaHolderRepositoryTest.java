@@ -20,6 +20,15 @@ public class VisaHolderRepositoryTest {
     @Autowired
     VisaHolderRepository visaHolderRepository;
 
+    @Autowired
+    MovementRepository movementRepository;
+
+    @BeforeEach
+    void setUp() {
+        movementRepository.deleteAll(); // Deletes child rows first due to FK constraint
+        visaHolderRepository.deleteAll();
+    }
+
     // Helpers
     private VisaHolder buildHolder(String passport, String name, VisaStatus status,
                                    LocalDateTime expiry) {
@@ -32,11 +41,6 @@ public class VisaHolderRepositoryTest {
                 .expiryDate(expiry)
                 .entryDate(LocalDateTime.now().minusMonths(1))
                 .build();
-    }
-
-    @BeforeEach
-    void setUp() {
-        visaHolderRepository.deleteAll(); // clean slate each test
     }
 
 

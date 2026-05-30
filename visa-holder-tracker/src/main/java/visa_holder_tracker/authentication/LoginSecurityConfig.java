@@ -1,5 +1,6 @@
 package visa_holder_tracker.authentication;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -46,6 +47,11 @@ public class LoginSecurityConfig {
                         // Allow H2 console access.
                         .requestMatchers("/api/auth/login", "/h2-console/**").permitAll() // Permit any request to the mentioned endpoints
                         .anyRequest().authenticated() // Any other request fall under the default authentication.
+                )
+                .exceptionHandling(ex -> ex // Registeres an entry point so 401 doesn't fall back to 403
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                        )
                 );
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

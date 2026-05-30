@@ -88,8 +88,7 @@ class MovementServiceTest {
         Movement result = movementService.logMovement(request);
 
         assertNotNull(result);
-        assertEquals(LocalDate.of(2026, 5, 30), result.getExitDate());
-        assertNull(result.getEntryDate());
+        assertEquals(LocalDateTime.of(2026, 5, 30, 0, 0), result.getExitDate());        assertNull(result.getEntryDate());
         assertEquals(holder, result.getVisaHolder());
 
         verify(visaHolderRepository).findByPassportNumber("A1234567");
