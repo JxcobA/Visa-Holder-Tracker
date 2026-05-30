@@ -1,0 +1,430 @@
+Index: visa-holder-tracker/src/main/java/visa_holder_tracker/service/MovementService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package visa_holder_tracker.service;\r\n\r\nimport lombok.RequiredArgsConstructor;\r\nimport org.springframework.stereotype.Service;\r\nimport visa_holder_tracker.dto.MovementRequest;\r\nimport visa_holder_tracker.dto.VisaHolderRequest;\r\nimport visa_holder_tracker.entity.Movement;\r\nimport visa_holder_tracker.entity.MovementType;\r\nimport visa_holder_tracker.entity.VisaHolder;\r\nimport visa_holder_tracker.repository.MovementRepository;\r\nimport visa_holder_tracker.repository.VisaHolderRepository;\r\n\r\nimport java.util.List;\r\nimport java.util.Optional;\r\n\r\n@Service\r\n@RequiredArgsConstructor\r\npublic class MovementService {\r\n\r\n    private final MovementRepository movementRepository;\r\n    private final VisaHolderRepository visaHolderRepository;\r\n\r\n    public List<Movement> getMovementsByHolderId(String passportNumber) {\r\n        return movementRepository.findByVisaHolderPassportNumber(passportNumber);\r\n    }\r\n\r\n    public Movement logMovement(MovementRequest request) {\r\n        VisaHolder holder = visaHolderRepository.findByPassportNumber(request.getPassportNumber())\r\n                .orElseThrow(() -> new RuntimeException(\"Visa Holder Not Found\"));\r\n\r\n        Movement movement = new Movement();\r\n        movement.setVisaHolder(holder);\r\n\r\n        if (request.getType() == MovementType.ENTRY) {\r\n            movement.setEntryDate(request.getDate());\r\n        } else {\r\n            movement.setExitDate(request.getDate());\r\n        }\r\n\r\n        return movementRepository.save(movement);\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/visa_holder_tracker/service/MovementService.java b/visa-holder-tracker/src/main/java/visa_holder_tracker/service/MovementService.java
+--- a/visa-holder-tracker/src/main/java/visa_holder_tracker/service/MovementService.java	(revision 30b3c6c26fa625a98167ebbf6658baeac597a1a3)
++++ b/visa-holder-tracker/src/main/java/visa_holder_tracker/service/MovementService.java	(date 1780163936531)
+@@ -3,7 +3,7 @@
+ import lombok.RequiredArgsConstructor;
+ import org.springframework.stereotype.Service;
+ import visa_holder_tracker.dto.MovementRequest;
+-import visa_holder_tracker.dto.VisaHolderRequest;
++import visa_holder_tracker.dto.MovementResponse;
+ import visa_holder_tracker.entity.Movement;
+ import visa_holder_tracker.entity.MovementType;
+ import visa_holder_tracker.entity.VisaHolder;
+@@ -11,7 +11,6 @@
+ import visa_holder_tracker.repository.VisaHolderRepository;
+ 
+ import java.util.List;
+-import java.util.Optional;
+ 
+ @Service
+ @RequiredArgsConstructor
+@@ -20,8 +19,10 @@
+     private final MovementRepository movementRepository;
+     private final VisaHolderRepository visaHolderRepository;
+ 
+-    public List<Movement> getMovementsByHolderId(String passportNumber) {
+-        return movementRepository.findByVisaHolderPassportNumber(passportNumber);
++    // This method was made by Jacob, to fix an issue I changed it - Newlife
++    public List<MovementResponse> getMovementsByHolderId(String passportNumber) {
++        return movementRepository.findByVisaHolderPassportNumber(passportNumber)
++                .stream().map(MovementResponse::from).toList();
+     }
+ 
+     public Movement logMovement(MovementRequest request) {
+Index: visa-holder-tracker/src/main/java/visa_holder_tracker/controller/MovementController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package visa_holder_tracker.controller;\r\n\r\nimport jakarta.validation.Valid;\r\nimport lombok.RequiredArgsConstructor;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.http.HttpStatus;\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.security.access.prepost.PreAuthorize;\r\nimport org.springframework.web.bind.annotation.*;\r\nimport visa_holder_tracker.dto.MovementRequest;\r\nimport visa_holder_tracker.entity.Movement;\r\nimport visa_holder_tracker.service.MovementService;\r\n\r\nimport java.util.List;\r\n\r\n@RestController\r\n@RequiredArgsConstructor\r\n@RequestMapping(\"/api/movements\")\r\npublic class MovementController {\r\n\r\n    private final MovementService movementService;\r\n\r\n    @PreAuthorize(\"hasAnyRole('USER', 'ADMIN')\")\r\n    @PostMapping\r\n    public ResponseEntity<Movement> logMovement(\r\n            @Valid @RequestBody MovementRequest request) {\r\n        Movement saved = movementService.logMovement(request);\r\n        return ResponseEntity.status(HttpStatus.CREATED).body(saved);\r\n    }\r\n\r\n    @PreAuthorize(\"hasAnyRole('USER', 'ADMIN')\")\r\n    @GetMapping(\"/{passportNumber}\")\r\n    public ResponseEntity<List<Movement>> getMovements(\r\n            @PathVariable String passportNumber) {\r\n        return ResponseEntity.ok(movementService.getMovementsByHolderId(passportNumber));\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/visa_holder_tracker/controller/MovementController.java b/visa-holder-tracker/src/main/java/visa_holder_tracker/controller/MovementController.java
+--- a/visa-holder-tracker/src/main/java/visa_holder_tracker/controller/MovementController.java	(revision 30b3c6c26fa625a98167ebbf6658baeac597a1a3)
++++ b/visa-holder-tracker/src/main/java/visa_holder_tracker/controller/MovementController.java	(date 1780168441678)
+@@ -8,6 +8,7 @@
+ import org.springframework.security.access.prepost.PreAuthorize;
+ import org.springframework.web.bind.annotation.*;
+ import visa_holder_tracker.dto.MovementRequest;
++import visa_holder_tracker.dto.MovementResponse;
+ import visa_holder_tracker.entity.Movement;
+ import visa_holder_tracker.service.MovementService;
+ 
+@@ -30,7 +31,7 @@
+ 
+     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+     @GetMapping("/{passportNumber}")
+-    public ResponseEntity<List<Movement>> getMovements(
++    public ResponseEntity<List<MovementResponse>> getMovements(
+             @PathVariable String passportNumber) {
+         return ResponseEntity.ok(movementService.getMovementsByHolderId(passportNumber));
+     }
+Index: visa-holder-tracker/src/main/java/References/file.md
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/References/file.md b/visa-holder-tracker/src/main/java/References/file.md
+deleted file mode 100644
+--- a/visa-holder-tracker/src/main/java/References/file.md	(revision 30b3c6c26fa625a98167ebbf6658baeac597a1a3)
++++ /dev/null	(revision 30b3c6c26fa625a98167ebbf6658baeac597a1a3)
+@@ -1,11 +0,0 @@
+-How Spring Security Works:
+-https://docs.spring.io/spring-boot/reference/web/spring-security.html#web.security.spring-mvc
+-
+-Security Filter Example
+-https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/config/annotation/web/builders/HttpSecurity.html
+-
+-Generating JWT Token
+-https://www.youtube.com/watch?v=e2xut5xpmmk
+-
+-Handling Json
+-https://www.geeksforgeeks.org/java/working-with-json-data-in-java/
+\ No newline at end of file
+Index: visa-holder-tracker/src/test/java/visa_holder_tracker/controller/MovementControllerTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package visa_holder_tracker.controller;\r\n\r\nimport com.fasterxml.jackson.databind.ObjectMapper;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\r\nimport org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;\r\nimport org.springframework.security.test.context.support.WithMockUser;\r\nimport org.springframework.test.context.bean.override.mockito.MockitoBean;\r\nimport org.springframework.test.web.servlet.MockMvc;\r\nimport visa_holder_tracker.dto.MovementRequest;\r\nimport visa_holder_tracker.entity.Movement;\r\nimport visa_holder_tracker.entity.MovementType;\r\nimport visa_holder_tracker.service.MovementService;\r\n\r\nimport java.time.LocalDate;\r\nimport java.time.LocalDateTime;\r\nimport java.util.List;\r\n\r\nimport static org.mockito.ArgumentMatchers.any;\r\nimport static org.mockito.Mockito.when;\r\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\r\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\r\n\r\n@WebMvcTest(MovementController.class)\r\nclass MovementControllerTest {\r\n\r\n    @Autowired\r\n    private MockMvc mockMvc;\r\n\r\n    @Autowired\r\n    private ObjectMapper objectMapper;\r\n\r\n    @MockitoBean\r\n    private MovementService movementService;\r\n\r\n    @MockitoBean\r\n    private JpaMetamodelMappingContext jpaMetamodelMappingContext;\r\n\r\n    @Test\r\n    @WithMockUser(roles = {\"USER\"})\r\n    void logMovement_shouldReturnCreatedMovement() throws Exception {\r\n        MovementRequest request = new MovementRequest();\r\n        request.setPassportNumber(\"A1234567\");\r\n        request.setType(MovementType.ENTRY);\r\n        request.setDate(LocalDateTime.of(2026, 5, 29,00,00));\r\n\r\n        Movement savedMovement = new Movement();\r\n        savedMovement.setEntryDate(LocalDateTime.of(2026, 5, 29,00,00));\r\n\r\n        when(movementService.logMovement(any(MovementRequest.class)))\r\n                .thenReturn(savedMovement);\r\n\r\n        mockMvc.perform(post(\"/api/movements\")\r\n                        .contentType(\"application/json\")\r\n                        .content(objectMapper.writeValueAsString(request)))\r\n                .andExpect(status().isCreated())\r\n                .andExpect(jsonPath(\"$.entryDate\").value(\"2026-05-29\"));\r\n    }\r\n\r\n    @Test\r\n    @WithMockUser(roles = {\"USER\"})\r\n    void getMovements_shouldReturnMovementList() throws Exception {\r\n        Movement movement = new Movement();\r\n        movement.setEntryDate(LocalDateTime.of(2026, 5, 29,00,00));\r\n\r\n        when(movementService.getMovementsByHolderId(\"A1234567\"))\r\n                .thenReturn(List.of(movement));\r\n\r\n        mockMvc.perform(get(\"/api/movements/A1234567\"))\r\n                .andExpect(status().isOk())\r\n                .andExpect(jsonPath(\"$[0].entryDate\").value(\"2026-05-29\"));\r\n    }\r\n\r\n    @Test\r\n    void logMovement_withoutAuthentication_shouldReturnUnauthorized() throws Exception {\r\n        MovementRequest request = new MovementRequest();\r\n        request.setPassportNumber(\"A1234567\");\r\n        request.setType(MovementType.ENTRY);\r\n        request.setDate(LocalDateTime.of(2026, 5, 29,00,00));\r\n\r\n        mockMvc.perform(post(\"/api/movements\")\r\n                        .contentType(\"application/json\")\r\n                        .content(objectMapper.writeValueAsString(request)))\r\n                .andExpect(status().isUnauthorized());\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/test/java/visa_holder_tracker/controller/MovementControllerTest.java b/visa-holder-tracker/src/test/java/visa_holder_tracker/controller/MovementControllerTest.java
+--- a/visa-holder-tracker/src/test/java/visa_holder_tracker/controller/MovementControllerTest.java	(revision 30b3c6c26fa625a98167ebbf6658baeac597a1a3)
++++ b/visa-holder-tracker/src/test/java/visa_holder_tracker/controller/MovementControllerTest.java	(date 1780171606769)
+@@ -4,13 +4,18 @@
+ import org.junit.jupiter.api.Test;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
++import org.springframework.context.annotation.Import;
+ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+ import org.springframework.security.test.context.support.WithMockUser;
+ import org.springframework.test.context.bean.override.mockito.MockitoBean;
+ import org.springframework.test.web.servlet.MockMvc;
++import visa_holder_tracker.authentication.LoginSecurityConfig;
++import visa_holder_tracker.config.CustomUserDetailsService;
+ import visa_holder_tracker.dto.MovementRequest;
++import visa_holder_tracker.dto.MovementResponse;
+ import visa_holder_tracker.entity.Movement;
+ import visa_holder_tracker.entity.MovementType;
++import visa_holder_tracker.jwt_utils.GenerateJWTToken;
+ import visa_holder_tracker.service.MovementService;
+ 
+ import java.time.LocalDate;
+@@ -21,9 +26,11 @@
+ import static org.mockito.Mockito.when;
+ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
++import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+ 
+ @WebMvcTest(MovementController.class)
++@Import(LoginSecurityConfig.class)
+ class MovementControllerTest {
+ 
+     @Autowired
+@@ -32,6 +39,10 @@
+     @Autowired
+     private ObjectMapper objectMapper;
+ 
++    @MockitoBean
++    private GenerateJWTToken generateJWTToken;       // JwtFilter depends on this
++    @MockitoBean private CustomUserDetailsService customUserDetailsService;
++
+     @MockitoBean
+     private MovementService movementService;
+ 
+@@ -56,21 +67,26 @@
+                         .contentType("application/json")
+                         .content(objectMapper.writeValueAsString(request)))
+                 .andExpect(status().isCreated())
+-                .andExpect(jsonPath("$.entryDate").value("2026-05-29"));
++                .andExpect(jsonPath("$.entryDate").value("2026-05-29T00:00:00"));
+     }
+ 
+     @Test
+     @WithMockUser(roles = {"USER"})
+     void getMovements_shouldReturnMovementList() throws Exception {
+-        Movement movement = new Movement();
+-        movement.setEntryDate(LocalDateTime.of(2026, 5, 29,00,00));
++        MovementResponse movement = new MovementResponse(
++                1L,
++                LocalDateTime.of(2026, 5, 29, 0, 0),
++                null,
++                "A1234567");
+ 
++        // Because now we use MovementResponse - Newlife
+         when(movementService.getMovementsByHolderId("A1234567"))
+                 .thenReturn(List.of(movement));
+ 
+         mockMvc.perform(get("/api/movements/A1234567"))
++                .andDo(print())                       // <- add this temporarily, see below
+                 .andExpect(status().isOk())
+-                .andExpect(jsonPath("$[0].entryDate").value("2026-05-29"));
++                .andExpect(jsonPath("$[0].passportNumber").value("A1234567"));
+     }
+ 
+     @Test
+@@ -83,6 +99,6 @@
+         mockMvc.perform(post("/api/movements")
+                         .contentType("application/json")
+                         .content(objectMapper.writeValueAsString(request)))
+-                .andExpect(status().isUnauthorized());
++                .andExpect(status().isForbidden());
+     }
+ }
+Index: visa-holder-tracker/src/main/java/visa_holder_tracker/exception/GlobalExceptionHandler.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/visa_holder_tracker/exception/GlobalExceptionHandler.java b/visa-holder-tracker/src/main/java/visa_holder_tracker/exception/GlobalExceptionHandler.java
+new file mode 100644
+--- /dev/null	(date 1780163936383)
++++ b/visa-holder-tracker/src/main/java/visa_holder_tracker/exception/GlobalExceptionHandler.java	(date 1780163936383)
+@@ -0,0 +1,21 @@
++package visa_holder_tracker.exception;
++
++import org.springframework.http.HttpStatus;
++import org.springframework.http.ResponseEntity;
++import org.springframework.security.authentication.BadCredentialsException;
++import org.springframework.web.bind.annotation.ExceptionHandler;
++import org.springframework.web.bind.annotation.RestControllerAdvice;
++
++import java.util.Map;
++
++@RestControllerAdvice
++public class GlobalExceptionHandler {
++    @ExceptionHandler(ResourceNotFoundException.class)
++    public ResponseEntity<Map<String,String>> notFound(RuntimeException e) {
++        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
++    }
++    @ExceptionHandler(BadCredentialsException.class)
++    public ResponseEntity<Map<String,String>> badCreds(Exception e) {
++        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid username or password"));
++    }
++}
+Index: visa-holder-tracker/src/main/java/visa_holder_tracker/service/VisaHolderService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package visa_holder_tracker.service;\r\n\r\n\r\nimport org.springframework.stereotype.Service;\r\nimport visa_holder_tracker.entity.VisaHolder;\r\nimport visa_holder_tracker.repository.VisaHolderRepository;\r\n\r\nimport java.time.LocalDateTime;\r\nimport java.util.List;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.PageRequest;\r\nimport org.springframework.data.domain.Pageable;\r\n\r\nimport visa_holder_tracker.dto.VisaHolderRequest;\r\n\r\nimport visa_holder_tracker.entity.VisaStatus;\r\n\r\n\r\n\r\n@Service\r\npublic class VisaHolderService {\r\n    private final VisaHolderRepository repository;\r\n\r\n    public VisaHolderService(VisaHolderRepository repository) {\r\n        this.repository = repository;\r\n    }\r\n\r\n    public VisaHolder createVisaHolder(VisaHolderRequest request){\r\n        VisaHolder visaHolder = new VisaHolder();\r\n\r\n        visaHolder.setPassportNumber(request.getPassportNumber());\r\n        visaHolder.setFullName(request.getFullName());\r\n        visaHolder.setNationality(request.getNationality());\r\n        visaHolder.setVisaType(request.getVisaType());\r\n        visaHolder.setExpiryDate(request.getExpiryDate());\r\n        visaHolder.setEntryDate(request.getEntryDate());\r\n        visaHolder.setStatus(request.getStatus());\r\n\r\n        return repository.save(visaHolder);\r\n\r\n    }\r\n    public Page<VisaHolder> getAllVisaHolders(int page, int size){\r\n        Pageable pageable = PageRequest.of(page, size);\r\n        return repository.findAll(pageable);\r\n    }\r\n\r\n    public Page<VisaHolder> searchVisaHoldersByName(\r\n            String fullName,\r\n            int page,\r\n            int size\r\n    ){\r\n        Pageable pageable = PageRequest.of(page, size);\r\n\r\n        return repository.findByFullNameContainingIgnoreCase(\r\n                fullName,\r\n                pageable\r\n        );\r\n    }\r\n\r\n    public Page<VisaHolder> filterVisaHolderByStatus(\r\n            VisaStatus status,\r\n            int page,\r\n            int size\r\n    ){\r\n        Pageable pageable = PageRequest.of(page, size);\r\n        return repository.findByStatus(status, pageable);\r\n    }\r\n\r\n    public VisaHolder getVisaHolderByPassportNumber(String passportNumber) {\r\n        return repository.findByPassportNumber(passportNumber)\r\n                .orElseThrow(() ->new RuntimeException(\"Visa Holder Not Found\"));\r\n    }\r\n\r\n    public VisaHolder updateVisaHolder(String passportNumber, VisaHolderRequest request){\r\n        VisaHolder visaHolder = repository.findByPassportNumber(passportNumber)\r\n                .orElseThrow(()->new RuntimeException(\"VIsa Holder Not Found\"));\r\n\r\n        visaHolder.setFullName(request.getFullName());\r\n        visaHolder.setNationality(request.getNationality());\r\n        visaHolder.setVisaType(request.getVisaType());\r\n        visaHolder.setExpiryDate(request.getExpiryDate());\r\n        visaHolder.setEntryDate(request.getEntryDate());\r\n        visaHolder.setStatus(request.getStatus());\r\n\r\n        return repository.save(visaHolder);\r\n    }\r\n\r\n    // (After merging and testing) AWS notification logic can be written and triggered from here\r\n    public List<VisaHolder> getExpiringSoon(int days) {\r\n\r\n        // Newlife: Use LocalDateTime to prevent data type mismatches, that's all.\r\n        LocalDateTime today = LocalDateTime.now();\r\n        LocalDateTime cutoff = LocalDateTime.now().plusDays(days);\r\n        return repository.findExpiringSoon(today, cutoff);\r\n    }\r\n\r\n    public List<VisaHolder> getExpired() {\r\n        LocalDateTime today = LocalDateTime.now();\r\n        return repository.findExpired(today);\r\n    }\r\n\r\n    public void deleteVisaHolder(String passportNumber){\r\n        VisaHolder visaHolder = repository.findByPassportNumber(passportNumber)\r\n                .orElseThrow(()->new RuntimeException(\"Visa Holder Not Found\"));\r\n\r\n        repository.delete(visaHolder);\r\n    }\r\n\r\n    public Long countActive() {\r\n        return repository.countByStatus(VisaStatus.ACTIVE);\r\n    }\r\n\r\n    public List<VisaHolder> getOverstayed() {\r\n        LocalDateTime today = LocalDateTime.now();\r\n        return repository.findOverstayed(today, VisaStatus.ACTIVE);\r\n    }\r\n\r\n}\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/visa_holder_tracker/service/VisaHolderService.java b/visa-holder-tracker/src/main/java/visa_holder_tracker/service/VisaHolderService.java
+--- a/visa-holder-tracker/src/main/java/visa_holder_tracker/service/VisaHolderService.java	(revision 30b3c6c26fa625a98167ebbf6658baeac597a1a3)
++++ b/visa-holder-tracker/src/main/java/visa_holder_tracker/service/VisaHolderService.java	(date 1780164013075)
+@@ -88,7 +88,6 @@
+     // (After merging and testing) AWS notification logic can be written and triggered from here
+     public List<VisaHolder> getExpiringSoon(int days) {
+ 
+-        // Newlife: Use LocalDateTime to prevent data type mismatches, that's all.
+         LocalDateTime today = LocalDateTime.now();
+         LocalDateTime cutoff = LocalDateTime.now().plusDays(days);
+         return repository.findExpiringSoon(today, cutoff);
+Index: visa-holder-tracker/src/main/java/visa_holder_tracker/exception/ResourceNotFoundException.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/visa_holder_tracker/exception/ResourceNotFoundException.java b/visa-holder-tracker/src/main/java/visa_holder_tracker/exception/ResourceNotFoundException.java
+new file mode 100644
+--- /dev/null	(date 1780163936448)
++++ b/visa-holder-tracker/src/main/java/visa_holder_tracker/exception/ResourceNotFoundException.java	(date 1780163936448)
+@@ -0,0 +1,7 @@
++package visa_holder_tracker.exception;
++
++
++public class ResourceNotFoundException extends RuntimeException {
++    public ResourceNotFoundException(String msg) { super(msg); }
++}
++
+Index: visa-holder-tracker/src/main/java/visa_holder_tracker/dto/MovementResponse.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/visa_holder_tracker/dto/MovementResponse.java b/visa-holder-tracker/src/main/java/visa_holder_tracker/dto/MovementResponse.java
+new file mode 100644
+--- /dev/null	(date 1780168441643)
++++ b/visa-holder-tracker/src/main/java/visa_holder_tracker/dto/MovementResponse.java	(date 1780168441643)
+@@ -0,0 +1,13 @@
++package visa_holder_tracker.dto;
++
++import visa_holder_tracker.entity.Movement;
++import java.time.LocalDateTime;
++
++// Was created solely to serve as a one way response to
++public record MovementResponse(Long id, LocalDateTime entryDate,
++                               LocalDateTime exitDate, String passportNumber) {
++    public static MovementResponse from(Movement movement) {
++        return new MovementResponse(movement.getId(), movement.getEntryDate(),
++                movement.getExitDate(), movement.getVisaHolder().getPassportNumber());
++    }
++}
+\ No newline at end of file
+Index: visa-holder-tracker/src/main/java/visa_holder_tracker/authentication/LoginSecurityConfig.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package visa_holder_tracker.authentication;\r\n\r\nimport org.springframework.context.annotation.Bean;\r\nimport org.springframework.context.annotation.Configuration;\r\nimport org.springframework.security.authentication.AuthenticationManager;\r\nimport org.springframework.security.authentication.AuthenticationProvider;\r\nimport org.springframework.security.authentication.dao.DaoAuthenticationProvider;\r\nimport org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;\r\nimport org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;\r\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\r\nimport org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;\r\nimport org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;\r\nimport org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;\r\nimport org.springframework.security.web.SecurityFilterChain;\r\nimport org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;\r\nimport visa_holder_tracker.config.CustomUserDetailsService;\r\nimport visa_holder_tracker.jwt_utils.JwtFilter;\r\n\r\n@Configuration // Becomes the configuration bean class\r\n@EnableWebSecurity // Enables endpoint security for request access\r\n@EnableMethodSecurity // Enables method security for role access\r\npublic class LoginSecurityConfig {\r\n    /// Provider: How to authenticate\r\n    /// Manager: Handles authentication process\r\n\r\n    // Injects our custom JWT filter\r\n    private final JwtFilter jwtFilter;\r\n\r\n    // Constructor to inject JWT Filter (Maybe I should do autowired instead)\r\n    public LoginSecurityConfig(JwtFilter jwtFilter) {\r\n        this.jwtFilter = jwtFilter;\r\n    }\r\n\r\n\r\n    @Bean\r\n    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {\r\n\r\n        http // Spring Security configuration object\r\n                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF protection (but allow H2 console)\r\n                .httpBasic(AbstractHttpConfigurer::disable) // Disable http basic\r\n                .formLogin(AbstractHttpConfigurer::disable) // Disable browser form login\r\n                .headers(headers -> headers // Required for H2 console to work (frames)\r\n                        .frameOptions(frame -> frame.sameOrigin())\r\n                )\r\n                .authorizeHttpRequests(auth -> auth // Manages endpoint authorization\r\n                        // Allow H2 console access.\r\n                        .requestMatchers(\"/api/auth/login\", \"/h2-console/**\").permitAll() // Permit any request to the mentioned endpoints\r\n                        .anyRequest().authenticated() // Any other request fall under the default authentication.\r\n                );\r\n\r\n        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);\r\n\r\n        return http.build(); // Applies all the new rules.\r\n    }\r\n\r\n    @Bean\r\n    public AuthenticationProvider authenticationProvider(CustomUserDetailsService userDetailsService){\r\n        // Use database backed authentication through UserDetailsService\r\n        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();\r\n\r\n        // Used to tell spring how to verify passwords using BCrypt\r\n        provider.setPasswordEncoder(new BCryptPasswordEncoder(12));\r\n\r\n        // Set where to load users from (In memory, at least until I have a database to work with)\r\n        provider.setUserDetailsService(userDetailsService);\r\n        return provider;\r\n    }\r\n\r\n    @Bean\r\n    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{\r\n        // get spring's built-in manager (Automatically uses our authenticationProvider)\r\n        return config.getAuthenticationManager();\r\n    }\r\n\r\n    // Temporal for testing should be removed once we have our database grabbing the details\r\n//    @Bean\r\n//    public UserDetailsService userDetailsService() {\r\n//        UserDetails user = User\r\n//                .withUsername(\"user\")\r\n//                .password(new BCryptPasswordEncoder(12).encode(\"password\"))\r\n//                .roles(\"USER\")\r\n//                .build();\r\n//\r\n//        UserDetails admin = User\r\n//                .withUsername(\"admin\")\r\n//                .password(new BCryptPasswordEncoder(12).encode(\"password43\"))\r\n//                .roles(\"ADMIN\")\r\n//                .build();\r\n//\r\n//        return new InMemoryUserDetailsManager(user, admin);\r\n//    }\r\n\r\n\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/visa_holder_tracker/authentication/LoginSecurityConfig.java b/visa-holder-tracker/src/main/java/visa_holder_tracker/authentication/LoginSecurityConfig.java
+--- a/visa-holder-tracker/src/main/java/visa_holder_tracker/authentication/LoginSecurityConfig.java	(revision 30b3c6c26fa625a98167ebbf6658baeac597a1a3)
++++ b/visa-holder-tracker/src/main/java/visa_holder_tracker/authentication/LoginSecurityConfig.java	(date 1780163698212)
+@@ -44,7 +44,8 @@
+                 )
+                 .authorizeHttpRequests(auth -> auth // Manages endpoint authorization
+                         // Allow H2 console access.
+-                        .requestMatchers("/api/auth/login", "/h2-console/**").permitAll() // Permit any request to the mentioned endpoints
++                        .requestMatchers("/api/auth/login", "/h2-console/**", "/actuator/health",
++                                "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Permit any request to the mentioned endpoints
+                         .anyRequest().authenticated() // Any other request fall under the default authentication.
+                 );
+ 
+Index: visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/JwtFilter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package visa_holder_tracker.jwt_utils;\r\n\r\nimport java.io.IOException;\r\nimport jakarta.servlet.FilterChain;\r\nimport jakarta.servlet.ServletException;\r\nimport jakarta.servlet.http.HttpServletRequest;\r\nimport jakarta.servlet.http.HttpServletResponse;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.security.authentication.UsernamePasswordAuthenticationToken;\r\nimport org.springframework.security.core.authority.SimpleGrantedAuthority;\r\nimport org.springframework.security.core.context.SecurityContextHolder;\r\nimport org.springframework.stereotype.Component;\r\nimport org.springframework.web.filter.OncePerRequestFilter;\r\n\r\nimport java.util.List;\r\n\r\n\r\n// Such that it becomes a bean\r\n@Component\r\npublic class JwtFilter extends OncePerRequestFilter {\r\n    // Extends from OncePerRequestFilter: to check JWT after every client request.\r\n\r\n    // Auto-injects the GenerateJWTToken bean in the JWT filter class\r\n    @Autowired\r\n    GenerateJWTToken jwtService; // Helps read and parse tokens\r\n\r\n    protected void doFilterInternal(HttpServletRequest request,\r\n                                    HttpServletResponse response,\r\n                                    FilterChain filterChain)\r\n            throws ServletException, IOException {\r\n\r\n        // Gets the JWT header\r\n        String header = request.getHeader(\"Authorization\");\r\n\r\n        String path = request.getServletPath();\r\n\r\n\r\n        if (path.equals(\"/api/auth/login\")) {\r\n            filterChain.doFilter(request, response);\r\n            return;\r\n        }\r\n\r\n\r\n        // Checks for the valid JWT format\r\n        if (header != null && header.startsWith(\"Bearer \")) {\r\n\r\n            // Removes the bearer prefix to only keep the token\r\n            String token = header.substring(7);\r\n\r\n            // Extracts the username from the token\r\n            String username = jwtService.extractUsername(token);\r\n\r\n            // Extracts the role from the token\r\n            String role = jwtService.extractRole(token);\r\n\r\n\r\n            // Creates an authenticated user object.\r\n            UsernamePasswordAuthenticationToken user =\r\n                    new UsernamePasswordAuthenticationToken(\r\n                            username, // We assign the username\r\n                            null, // No credentials\r\n                            List.of(new SimpleGrantedAuthority(role)) // Assign the role\r\n                    );\r\n\r\n            // Stores the user in the Spring Security Context bean\r\n            SecurityContextHolder.getContext().setAuthentication(user);\r\n\r\n        }\r\n\r\n        // Continues to the request\r\n        filterChain.doFilter(request, response);\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/JwtFilter.java b/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/JwtFilter.java
+--- a/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/JwtFilter.java	(revision 30b3c6c26fa625a98167ebbf6658baeac597a1a3)
++++ b/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/JwtFilter.java	(date 1780163622546)
+@@ -40,31 +40,20 @@
+             return;
+         }
+ 
+-
+-        // Checks for the valid JWT format
+         if (header != null && header.startsWith("Bearer ")) {
+-
+             // Removes the bearer prefix to only keep the token
+             String token = header.substring(7);
+-
+-            // Extracts the username from the token
+-            String username = jwtService.extractUsername(token);
+-
+-            // Extracts the role from the token
+-            String role = jwtService.extractRole(token);
+-
+-
+-            // Creates an authenticated user object.
+-            UsernamePasswordAuthenticationToken user =
+-                    new UsernamePasswordAuthenticationToken(
+-                            username, // We assign the username
+-                            null, // No credentials
+-                            List.of(new SimpleGrantedAuthority(role)) // Assign the role
+-                    );
+-
+-            // Stores the user in the Spring Security Context bean
+-            SecurityContextHolder.getContext().setAuthentication(user);
+-
++            try {
++                // Extracts the username from the token
++                String username = jwtService.extractUsername(token);
++                // Extracts the role from the token
++                String role = jwtService.extractRole(token);
++                var authToken = new UsernamePasswordAuthenticationToken(
++                        username, null, List.of(new SimpleGrantedAuthority(role)));
++                SecurityContextHolder.getContext().setAuthentication(authToken);
++            } catch (Exception e) {
++                SecurityContextHolder.clearContext();
++            }
+         }
+ 
+         // Continues to the request
+Index: visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/GenerateJWTToken.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package visa_holder_tracker.jwt_utils;\r\n\r\nimport io.jsonwebtoken.Jwts;\r\nimport io.jsonwebtoken.io.Decoders;\r\nimport io.jsonwebtoken.security.Keys;\r\nimport org.springframework.beans.factory.annotation.Value;\r\nimport org.springframework.security.core.Authentication;\r\nimport org.springframework.stereotype.Service;\r\n\r\nimport javax.crypto.KeyGenerator;\r\nimport javax.crypto.SecretKey;\r\nimport java.security.Key;\r\nimport java.security.NoSuchAlgorithmException;\r\nimport java.util.Base64;\r\nimport java.util.Date;\r\n\r\n// A service bean class\r\n@Service\r\npublic class GenerateJWTToken {\r\n\r\n    // Base64 encoded secret key for signing the token\r\n    @Value(\"${jwt.secretkey}\")\r\n    private String secretKey;\r\n\r\n    public GenerateJWTToken(){\r\n        try {\r\n            // Choosing \"HmacSHA256\" algorithm to generate keys\r\n            KeyGenerator keyGen = KeyGenerator.getInstance(\"HmacSHA256\");\r\n\r\n            // Generate a random secret key.\r\n            SecretKey sk = keyGen.generateKey();\r\n\r\n\r\n            // If \"HmacSHA256\" is the algorithm to create keys.\r\n            // Then what algorithm is sk.getEncoded() using to encode itself?\r\n            // Encode the key and encode and convert the encoded key to string using base 64.\r\n            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());\r\n\r\n        } catch (NoSuchAlgorithmException e){ // Catch unrecognized algorithms\r\n\r\n            // Throw a runtime exception error\r\n            throw new RuntimeException(e);\r\n        }\r\n    }\r\n\r\n    public String generateToken(Authentication auth){\r\n        String role = auth.getAuthorities().iterator().next().getAuthority();\r\n\r\n        // return the formed JWT string token\r\n        return Jwts.builder() // Initializing a JWT token build\r\n                .subject(auth.getName()) // Set the username as the identifier\r\n                .claim(\"role\", role)\r\n                .issuedAt(new Date(System.currentTimeMillis())) // Set issue date and time as now in milliseconds\r\n                .expiration(new Date(System.currentTimeMillis() + 300000L*67)) // Set the expiration of the JWT token to 5 minutes\r\n                .signWith(getKey()) // Signs the token using a secret private key\r\n                .compact(); // Returns the JWT string token (Generates the token)\r\n    }\r\n\r\n    public String extractUsername(String token) {\r\n        // Reads the token to return the username.\r\n        return Jwts.parser()\r\n                .verifyWith((SecretKey) getKey())\r\n                .build()\r\n                .parseSignedClaims(token)\r\n                .getPayload()\r\n                .getSubject();\r\n    }\r\n\r\n    public String extractRole(String token) {\r\n        // Reads the token to return the role.\r\n        return Jwts.parser()\r\n                .verifyWith((SecretKey) getKey())\r\n                .build()\r\n                .parseSignedClaims(token)\r\n                .getPayload()\r\n                .get(\"role\", String.class);\r\n    }\r\n\r\n    public Key getKey(){\r\n        // Decode the key using base 64 and convert it to the byte datatype\r\n        byte[] keyBytes = Decoders.BASE64.decode(secretKey);\r\n\r\n        // Perform something on the key bytes? And return the key in byte datatype\r\n        return Keys.hmacShaKeyFor(keyBytes);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/GenerateJWTToken.java b/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/GenerateJWTToken.java
+--- a/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/GenerateJWTToken.java	(revision 30b3c6c26fa625a98167ebbf6658baeac597a1a3)
++++ b/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/GenerateJWTToken.java	(date 1780163408471)
+@@ -7,11 +7,7 @@
+ import org.springframework.security.core.Authentication;
+ import org.springframework.stereotype.Service;
+ 
+-import javax.crypto.KeyGenerator;
+ import javax.crypto.SecretKey;
+-import java.security.Key;
+-import java.security.NoSuchAlgorithmException;
+-import java.util.Base64;
+ import java.util.Date;
+ 
+ // A service bean class
+@@ -20,27 +16,10 @@
+ 
+     // Base64 encoded secret key for signing the token
+     @Value("${jwt.secretkey}")
+-    private String secretKey;
+-
+-    public GenerateJWTToken(){
+-        try {
+-            // Choosing "HmacSHA256" algorithm to generate keys
+-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
++    private final SecretKey secretKey;
+ 
+-            // Generate a random secret key.
+-            SecretKey sk = keyGen.generateKey();
+-
+-
+-            // If "HmacSHA256" is the algorithm to create keys.
+-            // Then what algorithm is sk.getEncoded() using to encode itself?
+-            // Encode the key and encode and convert the encoded key to string using base 64.
+-            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
+-
+-        } catch (NoSuchAlgorithmException e){ // Catch unrecognized algorithms
+-
+-            // Throw a runtime exception error
+-            throw new RuntimeException(e);
+-        }
++    public GenerateJWTToken(@Value("${jwt.secretkey}") String secretKey){
++        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+     }
+ 
+     public String generateToken(Authentication auth){
+@@ -52,14 +31,14 @@
+                 .claim("role", role)
+                 .issuedAt(new Date(System.currentTimeMillis())) // Set issue date and time as now in milliseconds
+                 .expiration(new Date(System.currentTimeMillis() + 300000L*67)) // Set the expiration of the JWT token to 5 minutes
+-                .signWith(getKey()) // Signs the token using a secret private key
++                .signWith(this.secretKey) // Signs the token using a secret private key
+                 .compact(); // Returns the JWT string token (Generates the token)
+     }
+ 
+     public String extractUsername(String token) {
+         // Reads the token to return the username.
+         return Jwts.parser()
+-                .verifyWith((SecretKey) getKey())
++                .verifyWith((SecretKey) this.secretKey)
+                 .build()
+                 .parseSignedClaims(token)
+                 .getPayload()
+@@ -69,18 +48,10 @@
+     public String extractRole(String token) {
+         // Reads the token to return the role.
+         return Jwts.parser()
+-                .verifyWith((SecretKey) getKey())
++                .verifyWith((SecretKey) this.secretKey)
+                 .build()
+                 .parseSignedClaims(token)
+                 .getPayload()
+                 .get("role", String.class);
+     }
+-
+-    public Key getKey(){
+-        // Decode the key using base 64 and convert it to the byte datatype
+-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+-
+-        // Perform something on the key bytes? And return the key in byte datatype
+-        return Keys.hmacShaKeyFor(keyBytes);
+-    }
+ }

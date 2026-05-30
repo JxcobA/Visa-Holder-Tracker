@@ -1,0 +1,51 @@
+Index: visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/GenerateJWTToken.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package visa_holder_tracker.jwt_utils;\r\n\r\nimport io.jsonwebtoken.Jwts;\r\nimport io.jsonwebtoken.io.Decoders;\r\nimport io.jsonwebtoken.security.Keys;\r\nimport org.springframework.security.core.Authentication;\r\nimport org.springframework.stereotype.Service;\r\n\r\nimport javax.crypto.KeyGenerator;\r\nimport javax.crypto.SecretKey;\r\nimport java.security.Key;\r\nimport java.security.NoSuchAlgorithmException;\r\nimport java.util.Base64;\r\nimport java.util.Date;\r\n\r\n// A service bean class\r\n@Service\r\npublic class GenerateJWTToken {\r\n\r\n    // Base64 encoded secret key for signing the token\r\n    private String secretKey;\r\n\r\n    public GenerateJWTToken(){\r\n        try {\r\n            // Choosing \"HmacSHA256\" algorithm to generate keys\r\n            KeyGenerator keyGen = KeyGenerator.getInstance(\"HmacSHA256\");\r\n\r\n            // Generate a random secret key.\r\n            SecretKey sk = keyGen.generateKey();\r\n\r\n\r\n            // If \"HmacSHA256\" is the algorithm to create keys.\r\n            // Then what algorithm is sk.getEncoded() using to encode itself?\r\n\r\n            // Encode the key and encode and convert the encoded key to string using base 64.\r\n            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());\r\n\r\n        } catch (NoSuchAlgorithmException e){ // Catch unrecognized algorithms\r\n\r\n            // Throw a runtime exception error\r\n            throw new RuntimeException(e);\r\n        }\r\n    }\r\n\r\n    public String generateToken(Authentication auth){\r\n        String role = auth.getAuthorities().iterator().next().getAuthority();\r\n\r\n        // return the formed JWT string token\r\n        return Jwts.builder() // Initializing a JWT token build\r\n                .subject(auth.getName()) // Set the username as the identifier\r\n                .claim(\"role\", role)\r\n                .issuedAt(new Date(System.currentTimeMillis())) // Set issue date and time as now in milliseconds\r\n                .expiration(new Date(System.currentTimeMillis() + 300000L)) // Set the expiration of the JWT token to 5 minutes\r\n                .signWith(getKey()) // Signs the token using a secret private key\r\n                .compact(); // Returns the JWT string token (Generates the token)\r\n    }\r\n\r\n    public String extractUsername(String token) {\r\n        // Reads the token to return the username.\r\n        return Jwts.parser()\r\n                .verifyWith((SecretKey) getKey())\r\n                .build()\r\n                .parseSignedClaims(token)\r\n                .getPayload()\r\n                .getSubject();\r\n    }\r\n\r\n    public String extractRole(String token) {\r\n        // Reads the token to return the role.\r\n        return Jwts.parser()\r\n                .verifyWith((SecretKey) getKey())\r\n                .build()\r\n                .parseSignedClaims(token)\r\n                .getPayload()\r\n                .get(\"role\", String.class);\r\n    }\r\n\r\n    public Key getKey(){\r\n        // Decode the key using base 64 and convert it to the byte datatype\r\n        byte[] keyBytes = Decoders.BASE64.decode(secretKey);\r\n\r\n        // Perform something on the key bytes? And return the key in byte datatype\r\n        return Keys.hmacShaKeyFor(keyBytes);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/GenerateJWTToken.java b/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/GenerateJWTToken.java
+--- a/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/GenerateJWTToken.java	(revision 6d3a4354ecdd05d5308b36f003d022e3d3cf112c)
++++ b/visa-holder-tracker/src/main/java/visa_holder_tracker/jwt_utils/GenerateJWTToken.java	(date 1779987181757)
+@@ -18,7 +18,7 @@
+ public class GenerateJWTToken {
+ 
+     // Base64 encoded secret key for signing the token
+-    private String secretKey;
++    private String secretKey = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJOb3JtYWwgVXNlciIsInJvbGUiOiJST0xFX1VTRVIiLCJpYXQiOjE3Nzk5ODY0ODgsImV4cCI6MTc3OTk4Njc4OH0.Mp0gJ2NmNDuLzw_2OjSl0l7ioajgrwhfZ22dPCh2DN8";
+ 
+     public GenerateJWTToken(){
+         try {
+Index: visa-holder-tracker/target/classes/application.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/visa-holder-tracker/target/classes/application.properties b/visa-holder-tracker/target/classes/application.properties
+deleted file mode 100644
+--- a/visa-holder-tracker/target/classes/application.properties	(revision 6d3a4354ecdd05d5308b36f003d022e3d3cf112c)
++++ /dev/null	(revision 6d3a4354ecdd05d5308b36f003d022e3d3cf112c)
+@@ -1,22 +0,0 @@
+-spring.application.name=visa-holder-tracker
+-server.port=9000
+-
+-# H2 config for local testing
+-spring.datasource.url=jdbc:h2:mem:visadb
+-spring.datasource.driver-class-name=org.h2.Driver
+-spring.jpa.hibernate.ddl-auto=create-drop
+-spring.jpa.show-sql=true
+-spring.h2.console.enabled=true
+-
+-spring.security.ignored=/h2-console/**
+-# http://localhost:9000/h2-console
+-# Won't work without the security config
+-
+-# Enables the health actuator
+-management.endpoints.web.exposure.include=health
+-
+-# Set to always show full health details
+-management.endpoint.health.show-details=always
+-
+-spring.sql.init.mode=always
+-spring.jpa.defer-datasource-initialization=true

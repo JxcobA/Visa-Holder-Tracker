@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">visa_holder_tracker.controller</a> &gt; <span class="el_source">ReportController.java</span></div><h1>ReportController.java</h1><pre class="source lang-java linenums">package visa_holder_tracker.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import visa_holder_tracker.service.VisaHolderService;
+
+import java.util.Map;
+
+@RestController
+<span class="fc" id="L14">public class ReportController {</span>
+
+    @Autowired
+    private VisaHolderService service;
+
+    @PreAuthorize(&quot;hasAnyRole('USER', 'ADMIN')&quot;)
+    @GetMapping(&quot;/api/reports/summary&quot;)
+    public ResponseEntity&lt;?&gt; generateReport(){
+
+<span class="fc" id="L23">        return ResponseEntity.ok(Map.of(</span>
+<span class="fc" id="L24">                &quot;active&quot;, service.countActive().intValue(),</span>
+<span class="fc" id="L25">                &quot;expired&quot;, service.getExpired().size(),</span>
+<span class="fc" id="L26">                &quot;overstay&quot;, service.getOverstayed().size(),</span>
+<span class="fc" id="L27">                &quot;expiringSoon&quot;, service.getExpiringSoon(30).size()</span>
+        ));
+    }
+
+    @PreAuthorize(&quot;hasAnyRole('USER', 'ADMIN')&quot;)
+    @GetMapping(&quot;/api/reports/download/{date}&quot;)
+    public ResponseEntity&lt;?&gt; downloadReport(
+            @PathVariable
+            String date
+    ){
+<span class="fc" id="L37">        return ResponseEntity.ok(Map.of());</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

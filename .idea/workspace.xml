@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="fd8c07bc-9f99-40a7-896b-73b5599f604a" name="Changes" comment="Full project fix" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JUnit5 Test Class" />
+        <option value="Dockerfile" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feature/debugging" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;newmosesx&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/JxcobA/Visa-Holder-Tracker.git&quot;,
+    &quot;accountId&quot;: &quot;2d5a7ec2-3ec3-4d34-9051-5682f350fddc&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="3DlFfXnZubiuoA1TO07b367naiS" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JUnit.AuthenticationControllerTest.login_fails_withWrongPassword.executor": "Run",
+    "JUnit.AuthenticationControllerTest.login_succeeds_withValidCredentials.executor": "Run",
+    "JUnit.BasicConfigurationIntegrationTest.executor": "Run",
+    "JUnit.BasicConfigurationIntegrationTest.whenLoggedUserRequestsHomePage_ThenSuccess.executor": "Run",
+    "JUnit.MovementControllerTest.executor": "Run",
+    "JUnit.MovementControllerTest.getMovements_shouldReturnMovementList.executor": "Run",
+    "JUnit.MovementControllerTest.logMovement_shouldReturnCreatedMovement.executor": "Run",
+    "JUnit.MovementControllerTest.logMovement_withoutAuthentication_shouldReturnUnauthorized.executor": "Run",
+    "JUnit.MovementServiceTest.logEntry_SavesMovementWithExitDate.executor": "Run",
+    "JUnit.MovementServiceTest.logEntry_savesMovementWithEntryDate.executor": "Run",
+    "JUnit.ReportControllerTest.executor": "Run",
+    "JUnit.RoleRestrictionTest.executor": "Run",
+    "JUnit.VisaHolderControllerTest.executor": "Run",
+    "JUnit.VisaHolderControllerTest.getAllVisaHolders_User.executor": "Run",
+    "Maven.visa-holder-tracker [clean].executor": "Run",
+    "Maven.visa-holder-tracker [test].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.VisaHolderTrackerApplication.executor": "Run",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/newli1504893/Documents/Development/workplace/Visa-Holder-Tracker",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\newli1504893\Documents\Development\workplace\Visa-Holder-Tracker" />
+    </key>
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="visa_holder_tracker.controller" />
+      <recent name="visa_holder_tracker.service" />
+      <recent name="visa_holder_tracker.authentication" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="BasicConfigurationIntegrationTest.whenLoggedUserRequestsHomePage_ThenSuccess" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="visa-holder-tracker" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Authentication.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="visa_holder_tracker" />
+      <option name="MAIN_CLASS_NAME" value="visa_holder_tracker.BasicConfigurationIntegrationTest" />
+      <option name="METHOD_NAME" value="whenLoggedUserRequestsHomePage_ThenSuccess" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MovementControllerTest.getMovements_shouldReturnMovementList" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="visa-holder-tracker" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="visa_holder_tracker.controller.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="visa_holder_tracker.controller" />
+      <option name="MAIN_CLASS_NAME" value="visa_holder_tracker.controller.MovementControllerTest" />
+      <option name="METHOD_NAME" value="getMovements_shouldReturnMovementList" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MovementControllerTest.logMovement_shouldReturnCreatedMovement" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="visa-holder-tracker" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="visa_holder_tracker.controller.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="visa_holder_tracker.controller" />
+      <option name="MAIN_CLASS_NAME" value="visa_holder_tracker.controller.MovementControllerTest" />
+      <option name="METHOD_NAME" value="logMovement_shouldReturnCreatedMovement" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MovementControllerTest.logMovement_withoutAuthentication_shouldReturnUnauthorized" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="visa-holder-tracker" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="visa_holder_tracker.controller.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="visa_holder_tracker.controller" />
+      <option name="MAIN_CLASS_NAME" value="visa_holder_tracker.controller.MovementControllerTest" />
+      <option name="METHOD_NAME" value="logMovement_withoutAuthentication_shouldReturnUnauthorized" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MovementServiceTest.logEntry_SavesMovementWithExitDate" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="visa-holder-tracker" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="visa_holder_tracker.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="visa_holder_tracker.service" />
+      <option name="MAIN_CLASS_NAME" value="visa_holder_tracker.service.MovementServiceTest" />
+      <option name="METHOD_NAME" value="logEntry_SavesMovementWithExitDate" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="Visa-Holder-Tracker" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="Visa-Holder-Tracker" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="Visa-Holder-Tracker" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="Visa-Holder-Tracker" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.BasicConfigurationIntegrationTest.whenLoggedUserRequestsHomePage_ThenSuccess" />
+        <item itemvalue="JUnit.MovementServiceTest.logEntry_SavesMovementWithExitDate" />
+        <item itemvalue="JUnit.MovementControllerTest.logMovement_withoutAuthentication_shouldReturnUnauthorized" />
+        <item itemvalue="JUnit.MovementControllerTest.logMovement_shouldReturnCreatedMovement" />
+        <item itemvalue="JUnit.MovementControllerTest.getMovements_shouldReturnMovementList" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fd8c07bc-9f99-40a7-896b-73b5599f604a" name="Changes" comment="" />
+      <created>1778848854570</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1778848854570</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Authentication and Rest Controller Endpoints">
+      <option name="closed" value="true" />
+      <created>1779288440697</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1779288440697</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Added JWT dependency, added jwt generation and verification. Excluded login from default login protection.">
+      <option name="closed" value="true" />
+      <created>1779453590809</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1779453590809</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Added in line comments and the admin user role">
+      <option name="closed" value="true" />
+      <created>1779621983617</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1779621983617</updated>
+    </task>
+    <task id="LOCAL-00004" summary="test">
+      <option name="closed" value="true" />
+      <created>1779890299407</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1779890299407</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Resolving feature conflicts">
+      <option name="closed" value="true" />
+      <created>1779907376832</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1779907376832</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added JWT dependencies and removed jwt secret from properties">
+      <option name="closed" value="true" />
+      <created>1779908041329</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1779908041329</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Resolving rest controller conflict">
+      <option name="closed" value="true" />
+      <created>1779909191302</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1779909191302</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Added comments in the properties file">
+      <option name="closed" value="true" />
+      <created>1779909297924</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1779909297924</updated>
+    </task>
+    <task id="LOCAL-00009" summary="deleted  target">
+      <option name="closed" value="true" />
+      <created>1779909767720</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1779909767720</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Added inline comments">
+      <option name="closed" value="true" />
+      <created>1779973311233</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1779973311233</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Resolving merge conflicts.">
+      <option name="closed" value="true" />
+      <created>1779977877429</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1779977877429</updated>
+    </task>
+    <task id="LOCAL-00012" summary="fixes">
+      <option name="closed" value="true" />
+      <created>1779986051229</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1779986051229</updated>
+    </task>
+    <task id="LOCAL-00013" summary="fixing pull conflicts">
+      <option name="closed" value="true" />
+      <created>1780042204917</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1780042204917</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Added api/movement endpoint">
+      <option name="closed" value="true" />
+      <created>1780043247349</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1780043247349</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Fixed role authorization issues and made downloadReport method's parameter compatible with the required client request.">
+      <option name="closed" value="true" />
+      <created>1780043779497</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1780043779497</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Added secret key in properties, tokens are now maintain even if app is closed. Added comments for other collaborators to debug. Improved endpoint path allocation and fixed typo.">
+      <option name="closed" value="true" />
+      <created>1780046943566</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1780046943566</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Added the remaining services. Completed movement task.&#10;All rest controllers should work.">
+      <option name="closed" value="true" />
+      <created>1780051422616</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1780051422616</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Removing optional to allow application to run.">
+      <option name="closed" value="true" />
+      <created>1780052667241</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1780052667241</updated>
+    </task>
+    <task id="LOCAL-00019" summary="All endpoints fixes.">
+      <option name="closed" value="true" />
+      <created>1780056392782</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1780056392782</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Added a dockerfile">
+      <option name="closed" value="true" />
+      <created>1780144985071</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1780144985071</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Test files">
+      <option name="closed" value="true" />
+      <created>1780145099946</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1780145099946</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Fixes for docker deployment">
+      <option name="closed" value="true" />
+      <created>1780158083184</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1780158083184</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Full project fix">
+      <option name="closed" value="true" />
+      <created>1780175198423</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1780175198423</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/feature/authentication" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Authentication and Rest Controller Endpoints" />
+    <MESSAGE value="Added JWT dependency, added jwt generation and verification. Excluded login from default login protection." />
+    <MESSAGE value="Added in line comments and the admin user role" />
+    <MESSAGE value="test" />
+    <MESSAGE value="Resolving feature conflicts" />
+    <MESSAGE value="Added JWT dependencies and removed jwt secret from properties" />
+    <MESSAGE value="Resolving rest controller conflict" />
+    <MESSAGE value="Added comments in the properties file" />
+    <MESSAGE value="deleted  target" />
+    <MESSAGE value="Added inline comments" />
+    <MESSAGE value="Resolving merge conflicts." />
+    <MESSAGE value="fixes" />
+    <MESSAGE value="fixing pull conflicts" />
+    <MESSAGE value="Added api/movement endpoint" />
+    <MESSAGE value="Fixed role authorization issues and made downloadReport method's parameter compatible with the required client request." />
+    <MESSAGE value="Added secret key in properties, tokens are now maintain even if app is closed. Added comments for other collaborators to debug. Improved endpoint path allocation and fixed typo." />
+    <MESSAGE value="Added the remaining services. Completed movement task.&#10;All rest controllers should work." />
+    <MESSAGE value="Removing optional to allow application to run." />
+    <MESSAGE value="All endpoints fixes." />
+    <MESSAGE value="Added a dockerfile" />
+    <MESSAGE value="Test files" />
+    <MESSAGE value="Fixes for docker deployment" />
+    <MESSAGE value="Full project fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Full project fix" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="io.jsonwebtoken.impl.lang.UnavailableImplementationException" package="io.jsonwebtoken.impl.lang" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

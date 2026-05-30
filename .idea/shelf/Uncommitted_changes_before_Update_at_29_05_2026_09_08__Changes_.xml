@@ -1,0 +1,34 @@
+<changelist name="Uncommitted_changes_before_Update_at_29_05_2026_09_08_[Changes]" date="1780042107441" recycled="false" toDelete="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_05_2026_09_08_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 29/05/2026 09:08 [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="visa-holder-tracker/target/classes/visa_holder_tracker/VisaHolderTrackerApplication.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="visa-holder-tracker/target/classes/visa_holder_tracker/entity/Movementype.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="visa-holder-tracker/target/classes/visa_holder_tracker/repository/VisaHolderRepository.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="visa-holder-tracker/target/classes/visa_holder_tracker/controller/VisaHolderController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="visa-holder-tracker/target/classes/visa_holder_tracker/entity/Movement.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="visa-holder-tracker/target/classes/visa_holder_tracker/entity/VisaHolder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="visa-holder-tracker/target/classes/visa_holder_tracker/entity/VisaHolder$VisaHolderBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="visa-holder-tracker/target/classes/visa_holder_tracker/dto/VisaHolderRequest.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="visa-holder-tracker/target/classes/visa_holder_tracker/entity/VisaStatus.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="visa-holder-tracker/target/classes/visa_holder_tracker/service/VisaHolderService.class" />
+  </binary>
+</changelist>

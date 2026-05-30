@@ -1,0 +1,26 @@
+Index: visa-holder-tracker/src/main/resources/Dockerfile
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># ---- Stage 1: build ----\r\nFROM eclipse-temurin:21-jdk-alpine AS build\r\nWORKDIR /app\r\n\r\nCOPY mvnw .\r\nCOPY .mvn .mvn\r\nCOPY pom.xml .\r\nRUN chmod +x mvnw\r\n\r\nRUN ./mvnw dependency:go-offline -B\r\n\r\nCOPY src ./src\r\nRUN ./mvnw clean package -DskipTests -B\r\n\r\n# ---- Stage 2: run ----\r\nFROM eclipse-temurin:21-jre-alpine\r\nWORKDIR /app\r\n\r\nRUN addgroup -S spring && adduser -S spring -G spring\r\nUSER spring:spring\r\n\r\nCOPY --from=build /app/target/*.jar app.jar\r\n\r\nEXPOSE 8080\r\nENTRYPOINT [\"java\", \"-jar\", \"app.jar\"]
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/visa-holder-tracker/src/main/resources/Dockerfile b/visa-holder-tracker/src/main/resources/Dockerfile
+--- a/visa-holder-tracker/src/main/resources/Dockerfile	(revision 6461cab9ca3bc0612bebcbd7ba3cc6c9a9801dbd)
++++ b/visa-holder-tracker/src/main/resources/Dockerfile	(date 1780152794489)
+@@ -1,5 +1,5 @@
+ # ---- Stage 1: build ----
+-FROM eclipse-temurin:21-jdk-alpine AS build
++FROM eclipse-temurin:17-jdk-alpine AS build
+ WORKDIR /app
+ 
+ COPY mvnw .
+@@ -13,7 +13,7 @@
+ RUN ./mvnw clean package -DskipTests -B
+ 
+ # ---- Stage 2: run ----
+-FROM eclipse-temurin:21-jre-alpine
++FROM eclipse-temurin:17-jre-alpine
+ WORKDIR /app
+ 
+ RUN addgroup -S spring && adduser -S spring -G spring

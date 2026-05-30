@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginSecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">visa_holder_tracker.authentication</a> &gt; <span class="el_source">LoginSecurityConfig.java</span></div><h1>LoginSecurityConfig.java</h1><pre class="source lang-java linenums">package visa_holder_tracker.authentication;
+
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import visa_holder_tracker.config.CustomUserDetailsService;
+import visa_holder_tracker.jwt_utils.JwtFilter;
+
+@Configuration // Becomes the configuration bean class
+@EnableWebSecurity // Enables endpoint security for request access
+@EnableMethodSecurity // Enables method security for role access
+public class LoginSecurityConfig {
+    /// Provider: How to authenticate
+    /// Manager: Handles authentication process
+
+    // Injects our custom JWT filter
+    private final JwtFilter jwtFilter;
+
+    // Constructor to inject JWT Filter (Maybe I should do autowired instead)
+<span class="fc" id="L31">    public LoginSecurityConfig(JwtFilter jwtFilter) {</span>
+<span class="fc" id="L32">        this.jwtFilter = jwtFilter;</span>
+<span class="fc" id="L33">    }</span>
+
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+<span class="fc" id="L39">        http // Spring Security configuration object</span>
+<span class="fc" id="L40">                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF protection (but allow H2 console)</span>
+<span class="fc" id="L41">                .httpBasic(AbstractHttpConfigurer::disable) // Disable http basic</span>
+<span class="fc" id="L42">                .formLogin(AbstractHttpConfigurer::disable) // Disable browser form login</span>
+<span class="fc" id="L43">                .headers(headers -&gt; headers // Required for H2 console to work (frames)</span>
+<span class="fc" id="L44">                        .frameOptions(frame -&gt; frame.sameOrigin())</span>
+                )
+<span class="fc" id="L46">                .authorizeHttpRequests(auth -&gt; auth // Manages endpoint authorization</span>
+                        // Allow H2 console access.
+<span class="fc" id="L48">                        .requestMatchers(&quot;/api/auth/login&quot;, &quot;/h2-console/**&quot;, &quot;/actuator/health&quot;,</span>
+<span class="fc" id="L49">                                &quot;/swagger-ui/**&quot;, &quot;/v3/api-docs/**&quot;).permitAll() // Permit any request to the mentioned endpoints</span>
+<span class="fc" id="L50">                        .anyRequest().authenticated() // Any other request fall under the default authentication.</span>
+                )
+<span class="fc" id="L52">                .exceptionHandling(ex -&gt; ex // Registeres an entry point so 401 doesn't fall back to 403</span>
+<span class="fc" id="L53">                        .authenticationEntryPoint((request, response, authException) -&gt;</span>
+<span class="fc" id="L54">                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, &quot;Unauthorized&quot;)</span>
+                        )
+                );
+
+<span class="fc" id="L58">        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);</span>
+
+<span class="fc" id="L60">        return http.build(); // Applies all the new rules.</span>
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(CustomUserDetailsService userDetailsService){
+        // Use database backed authentication through UserDetailsService
+<span class="fc" id="L66">        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();</span>
+
+        // Used to tell spring how to verify passwords using BCrypt
+<span class="fc" id="L69">        provider.setPasswordEncoder(new BCryptPasswordEncoder(12));</span>
+
+        // Set where to load users from (In memory, at least until I have a database to work with)
+<span class="fc" id="L72">        provider.setUserDetailsService(userDetailsService);</span>
+<span class="fc" id="L73">        return provider;</span>
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+        // get spring's built-in manager (Automatically uses our authenticationProvider)
+<span class="fc" id="L79">        return config.getAuthenticationManager();</span>
+    }
+
+    // Temporal for testing should be removed once we have our database grabbing the details
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        UserDetails user = User
+//                .withUsername(&quot;user&quot;)
+//                .password(new BCryptPasswordEncoder(12).encode(&quot;password&quot;))
+//                .roles(&quot;USER&quot;)
+//                .build();
+//
+//        UserDetails admin = User
+//                .withUsername(&quot;admin&quot;)
+//                .password(new BCryptPasswordEncoder(12).encode(&quot;password43&quot;))
+//                .roles(&quot;ADMIN&quot;)
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(user, admin);
+//    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
