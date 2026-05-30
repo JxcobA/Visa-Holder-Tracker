@@ -40,31 +40,20 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-
-        // Checks for the valid JWT format
         if (header != null && header.startsWith("Bearer ")) {
-
             // Removes the bearer prefix to only keep the token
             String token = header.substring(7);
-
-            // Extracts the username from the token
-            String username = jwtService.extractUsername(token);
-
-            // Extracts the role from the token
-            String role = jwtService.extractRole(token);
-
-
-            // Creates an authenticated user object.
-            UsernamePasswordAuthenticationToken user =
-                    new UsernamePasswordAuthenticationToken(
-                            username, // We assign the username
-                            null, // No credentials
-                            List.of(new SimpleGrantedAuthority(role)) // Assign the role
-                    );
-
-            // Stores the user in the Spring Security Context bean
-            SecurityContextHolder.getContext().setAuthentication(user);
-
+            try {
+                // Extracts the username from the token
+                String username = jwtService.extractUsername(token);
+                // Extracts the role from the token
+                String role = jwtService.extractRole(token);
+                var authToken = new UsernamePasswordAuthenticationToken(
+                        username, null, List.of(new SimpleGrantedAuthority(role)));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
+            }
         }
 
         // Continues to the request

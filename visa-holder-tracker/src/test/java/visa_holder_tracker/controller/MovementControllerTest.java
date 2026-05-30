@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import visa_holder_tracker.authentication.LoginSecurityConfig;
 import visa_holder_tracker.config.CustomUserDetailsService;
 import visa_holder_tracker.dto.MovementRequest;
+import visa_holder_tracker.dto.MovementResponse;
 import visa_holder_tracker.entity.Movement;
 import visa_holder_tracker.entity.MovementType;
 import visa_holder_tracker.jwt_utils.GenerateJWTToken;
@@ -75,11 +76,11 @@ class MovementControllerTest {
     @Test
     @WithMockUser(roles = {"USER"})
     void getMovements_shouldReturnMovementList() throws Exception {
-        Movement movement = new Movement();
-        movement.setEntryDate(LocalDateTime.of(2026, 5, 29,00,00));
+        MovementResponse response = new MovementResponse(
+                1L, LocalDateTime.of(2026, 5, 29, 0, 0), null, "A1234567");
 
         when(movementService.getMovementsByHolderId("A1234567"))
-                .thenReturn(List.of(movement));
+                .thenReturn(List.of(response));
 
         mockMvc.perform(get("/api/movements/A1234567"))
                 .andExpect(status().isOk())

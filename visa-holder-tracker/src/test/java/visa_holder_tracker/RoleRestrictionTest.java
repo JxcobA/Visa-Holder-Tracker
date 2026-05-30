@@ -1,5 +1,6 @@
 package visa_holder_tracker;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -9,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import visa_holder_tracker.entity.*;
 import visa_holder_tracker.repository.AdminRepository;
+import visa_holder_tracker.repository.MovementRepository;
 import visa_holder_tracker.repository.UserRepository;
 import visa_holder_tracker.repository.VisaHolderRepository;
 
@@ -32,6 +34,9 @@ public class RoleRestrictionTest {
 
     @Autowired
     VisaHolderRepository visaHolderRepository;
+
+    @Autowired
+    MovementRepository movementRepository;
 
     @Test
     void userCannotDeleteVisaHolder() throws Exception {
@@ -84,6 +89,14 @@ public class RoleRestrictionTest {
         mockMvc.perform(delete("/api/visa-holders/DEL123")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
+    }
+
+    @AfterEach
+    void cleanUp() {
+        movementRepository.deleteAll();
+        visaHolderRepository.deleteAll();
+        adminRepository.deleteAll(); // <-- Ensure the admin table is cleared
+        userRepository.deleteAll();
     }
 
     private String loginAndGetToken(String username, String password) throws Exception {

@@ -1,6 +1,7 @@
 package visa_holder_tracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,5 +32,6 @@ public class Movement {
             referencedColumnName = "passportNumber",
             nullable = false
     )
+    @JsonIgnore
     private VisaHolder visaHolder;
 }

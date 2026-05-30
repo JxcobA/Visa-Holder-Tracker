@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import visa_holder_tracker.dto.MovementRequest;
+import visa_holder_tracker.dto.MovementResponse;
 import visa_holder_tracker.entity.Movement;
 import visa_holder_tracker.service.MovementService;
 
@@ -30,7 +31,7 @@ public class MovementController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{passportNumber}")
-    public ResponseEntity<List<Movement>> getMovements(
+    public ResponseEntity<List<MovementResponse>> getMovements(
             @PathVariable String passportNumber) {
         return ResponseEntity.ok(movementService.getMovementsByHolderId(passportNumber));
     }

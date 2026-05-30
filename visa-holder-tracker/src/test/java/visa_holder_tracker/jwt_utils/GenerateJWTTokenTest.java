@@ -16,7 +16,8 @@ class GenerateJWTTokenTest {
 
     @BeforeEach
     void setUp() {
-        jwtService = new GenerateJWTToken();
+        jwtService = new GenerateJWTToken(
+                "dGhpcy1pcy1hLXRlc3Qtb25seS1zZWNyZXQta2V5LWZvci1qd3Qtc2lnbmluZy0xMjM0NTY3ODkw");
     }
 
     // Helper:

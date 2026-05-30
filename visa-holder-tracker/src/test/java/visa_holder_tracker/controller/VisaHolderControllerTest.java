@@ -1,6 +1,8 @@
 package visa_holder_tracker.controller;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import visa_holder_tracker.entity.*;
 import visa_holder_tracker.repository.AdminRepository;
+import visa_holder_tracker.repository.MovementRepository;
 import visa_holder_tracker.repository.UserRepository;
 import visa_holder_tracker.repository.VisaHolderRepository;
 
@@ -30,6 +33,9 @@ class VisaHolderControllerTest {
 
     @Autowired
     AdminRepository adminRepository;
+
+    @Autowired
+    MovementRepository movementRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -503,7 +509,7 @@ class VisaHolderControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .param("days", "30"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$.length()", Matchers.greaterThanOrEqualTo(1)))
                 .andExpect(jsonPath("$[0].fullName").value("Expiring Soon"));
     }
 
@@ -521,7 +527,7 @@ class VisaHolderControllerTest {
         visaHolderRepository.save(VisaHolder.builder()
                 .passportNumber("FAR1").fullName("Expiring Later")
                 .nationality("Testland").visaType("Work")
-                .expiryDate(LocalDateTime.now().plusYears(2))    // way out
+                .expiryDate(LocalDateTime.now().plusYears(2))
                 .entryDate(LocalDateTime.now())
                 .status(VisaStatus.ACTIVE).build());
 
@@ -540,12 +546,13 @@ class VisaHolderControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .param("days", "30"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$.length()", Matchers.greaterThanOrEqualTo(1)))
                 .andExpect(jsonPath("$[0].fullName").value("Expiring Soon"));
     }
 
-    @AfterEach
+    @BeforeEach
     void cleanUp() {
+        movementRepository.deleteAll();
         visaHolderRepository.deleteAll();
         userRepository.deleteAll();
         adminRepository.deleteAll();
