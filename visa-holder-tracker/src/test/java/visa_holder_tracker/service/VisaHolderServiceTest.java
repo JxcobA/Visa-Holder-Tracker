@@ -30,6 +30,9 @@ public class VisaHolderServiceTest {
     @Mock // Creates a mock repo
     VisaHolderRepository visaHolderRepository;
 
+    @Mock // Mock the sqs service
+    SqsNotificationService sqsNotificationService;
+
     @InjectMocks // Creates a real service, injects mock repo into it
     VisaHolderService visaHolderService;
 

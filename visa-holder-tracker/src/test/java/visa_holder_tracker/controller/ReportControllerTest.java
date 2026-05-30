@@ -1,6 +1,7 @@
 package visa_holder_tracker.controller;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -14,6 +15,8 @@ import visa_holder_tracker.jwt_utils.GenerateJWTToken;
 import visa_holder_tracker.jwt_utils.JwtFilter;
 import visa_holder_tracker.repository.AdminRepository;
 import visa_holder_tracker.repository.UserRepository;
+import visa_holder_tracker.service.ReportService;
+import visa_holder_tracker.service.SqsNotificationService;
 import visa_holder_tracker.service.VisaHolderService;
 
 import java.util.List;
@@ -28,6 +31,14 @@ class ReportControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+
+    @MockitoBean
+    SqsNotificationService sqsNotificationService;
+
+    // Required so Spring can wire ReportController
+    @MockitoBean
+    private ReportService reportService;
 
     @MockitoBean
     private VisaHolderService visaHolderService;
@@ -71,9 +82,9 @@ class ReportControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void downloadReport_withDate_returnsOk() throws Exception {
+        when(reportService.generateAndUpload("2026-05")).thenReturn("https://fake-url.com");
         mockMvc.perform(get("/api/reports/download/2026-05")).andExpect(status().isOk());
     }
-
     @Test
     void downloadReport_unauthenticated_returnsUnauthorised() throws Exception {
         mockMvc.perform(get("/api/reports/download/2026-05")).andExpect(status().isUnauthorized());
