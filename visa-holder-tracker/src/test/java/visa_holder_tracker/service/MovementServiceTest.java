@@ -48,7 +48,7 @@ class MovementServiceTest {
         MovementRequest request = new MovementRequest();
         request.setPassportNumber("A123");
         request.setType(MovementType.ENTRY);
-        request.setDate(LocalDate.now());
+        request.setDate(LocalDate.now().atStartOfDay());
 
         // Act: call the method under test
         Movement result = movementService.logMovement(request);
@@ -77,7 +77,7 @@ class MovementServiceTest {
         MovementRequest request = new MovementRequest();
         request.setPassportNumber("A123");
         request.setType(MovementType.EXIT);
-        request.setDate(LocalDate.now());
+        request.setDate(LocalDate.now().atStartOfDay());
 
         // Act: call the method under test
         Movement result = movementService.logMovement(request);
