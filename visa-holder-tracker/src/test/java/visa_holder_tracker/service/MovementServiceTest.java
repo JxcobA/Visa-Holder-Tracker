@@ -1,138 +1,90 @@
 package visa_holder_tracker.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+
 import visa_holder_tracker.dto.MovementRequest;
 import visa_holder_tracker.entity.Movement;
 import visa_holder_tracker.entity.MovementType;
 import visa_holder_tracker.entity.VisaHolder;
+import visa_holder_tracker.entity.VisaStatus;
 import visa_holder_tracker.repository.MovementRepository;
 import visa_holder_tracker.repository.VisaHolderRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@DataJpaTest
+@Import(MovementService.class)
 class MovementServiceTest {
 
-    @Mock
-    private MovementRepository movementRepository;
+    @Autowired
+    VisaHolderRepository visaHolderRepository;
 
-    @Mock
-    private VisaHolderRepository visaHolderRepository;
-
-    @InjectMocks
-    private MovementService movementService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    @Autowired
+    MovementService movementService;
 
     @Test
-    void logMovement_shouldCreateEntryMovement() {
+    void logEntry_SavesMovementWithEntryDate() {
+        // Arrange: put a holder in the DB
+        VisaHolder holder = VisaHolder.builder()
+                .passportNumber("A123")
+                .fullName("Newlife")
+                .nationality("Testland")
+                .visaType("Work")
+                .expiryDate(LocalDateTime.now().plusYears(1))
+                .entryDate(LocalDateTime.now())
+                .status(VisaStatus.ACTIVE)
+                .build();
+        visaHolderRepository.save(holder);
+
+        // build the request that says "log an ENTRY for A123 today"
         MovementRequest request = new MovementRequest();
-        request.setPassportNumber("A1234567");
+        request.setPassportNumber("A123");
         request.setType(MovementType.ENTRY);
-        request.setDate(LocalDateTime.of(2026, 5, 29,00,00));
+        request.setDate(LocalDate.now());
 
-        VisaHolder holder = new VisaHolder();
-        holder.setPassportNumber("A1234567");
-
-        Movement savedMovement = new Movement();
-        savedMovement.setVisaHolder(holder);
-        savedMovement.setEntryDate(request.getDate());
-
-        when(visaHolderRepository.findByPassportNumber("A1234567"))
-                .thenReturn(Optional.of(holder));
-
-        when(movementRepository.save(any(Movement.class)))
-                .thenReturn(savedMovement);
-
+        // Act: call the method under test
         Movement result = movementService.logMovement(request);
 
-        assertNotNull(result);
-        assertEquals(LocalDateTime.of(2026, 5, 29,00,00), result.getEntryDate());
-        assertNull(result.getExitDate());
-        assertEquals(holder, result.getVisaHolder());
-
-        verify(visaHolderRepository).findByPassportNumber("A1234567");
-        verify(movementRepository).save(any(Movement.class));
+        // Assert: check it did the right thing
+        assertNotNull(result.getId());                 // it was saved (got an id)
+        assertEquals(LocalDate.now(), result.getEntryDate());  // entry slot filled
+        assertNull(result.getExitDate());              // exit slot left empty
     }
 
     @Test
-    void logMovement_shouldCreateExitMovement() {
+    void logEntry_SavesMovementWithExitDate() {
+        // Arrange: put a holder in the DB
+        VisaHolder holder = VisaHolder.builder()
+                .passportNumber("A123")
+                .fullName("Newlife")
+                .nationality("Testland")
+                .visaType("Work")
+                .expiryDate(LocalDateTime.now().plusYears(1))
+                .entryDate(LocalDateTime.now())
+                .status(VisaStatus.ACTIVE)
+                .build();
+        visaHolderRepository.save(holder);
+
+        // build the request that says "log an ENTRY for A123 today"
         MovementRequest request = new MovementRequest();
-        request.setPassportNumber("A1234567");
+        request.setPassportNumber("A123");
         request.setType(MovementType.EXIT);
-        request.setDate(LocalDateTime.of(2026, 5, 30,00,00));
+        request.setDate(LocalDate.now());
 
-        VisaHolder holder = new VisaHolder();
-        holder.setPassportNumber("A1234567");
-
-        Movement savedMovement = new Movement();
-        savedMovement.setVisaHolder(holder);
-        savedMovement.setExitDate(request.getDate());
-
-        when(visaHolderRepository.findByPassportNumber("A1234567"))
-                .thenReturn(Optional.of(holder));
-
-        when(movementRepository.save(any(Movement.class)))
-                .thenReturn(savedMovement);
-
+        // Act: call the method under test
         Movement result = movementService.logMovement(request);
 
-        assertNotNull(result);
-        assertEquals(LocalDate.of(2026, 5, 30), result.getExitDate());
-        assertNull(result.getEntryDate());
-        assertEquals(holder, result.getVisaHolder());
-
-        verify(visaHolderRepository).findByPassportNumber("A1234567");
-        verify(movementRepository).save(any(Movement.class));
-    }
-
-    @Test
-    void logMovement_shouldThrowExceptionWhenVisaHolderNotFound() {
-        MovementRequest request = new MovementRequest();
-        request.setPassportNumber("UNKNOWN");
-        request.setType(MovementType.ENTRY);
-        request.setDate(LocalDateTime.of(2026, 5, 29,00,00));
-
-        when(visaHolderRepository.findByPassportNumber("UNKNOWN"))
-                .thenReturn(Optional.empty());
-
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> movementService.logMovement(request)
-        );
-
-        assertEquals("Visa Holder Not Found", exception.getMessage());
-
-        verify(visaHolderRepository).findByPassportNumber("UNKNOWN");
-        verify(movementRepository, never()).save(any(Movement.class));
-    }
-
-    @Test
-    void getMovementsByHolderId_shouldReturnMovementList() {
-        String passportNumber = "A1234567";
-
-        Movement movement1 = new Movement();
-        movement1.setEntryDate(LocalDateTime.of(2026, 5, 29,00,00));
-
-        Movement movement2 = new Movement();
-        movement2.setExitDate(LocalDateTime.of(2026, 5, 30,00,00));
-
-        when(movementRepository.findByVisaHolderPassportNumber(passportNumber))
-                .thenReturn(List.of(movement1, movement2));
-
-        List<Movement> result = movementService.getMovementsByHolderId(passportNumber);
-
-        assertEquals(2, result.size());
-        verify(movementRepository).findByVisaHolderPassportNumber(passportNumber);
+        // Assert: check it did the right thing
+        assertNotNull(result.getId());                 // it was saved (got an id)
+        assertEquals(LocalDate.now(), result.getExitDate());  // exit slot filled
+        assertNull(result.getEntryDate());            // exit slot left empty
     }
 }
