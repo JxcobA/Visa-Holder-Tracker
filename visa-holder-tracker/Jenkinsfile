@@ -36,4 +36,17 @@ pipeline {
             }
         }
     }
+
+    post {
+        always {
+            publishHTML([
+                reportName: 'JaCoCo Coverage',
+                reportDir: 'visa-holder-tracker/target/site/jacoco',
+                reportFiles: 'index.html',
+                keepAll: true,
+                alwaysLinkToLastBuild: true,
+                allowMissing: false
+            ])
+        }
+    }
 }
