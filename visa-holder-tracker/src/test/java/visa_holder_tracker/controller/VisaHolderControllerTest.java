@@ -296,7 +296,7 @@ class VisaHolderControllerTest {
 
         // 2. Seed user + log in
         Admin admin = Admin.builder()
-                .role(Role.USER)
+                .role(Role.ADMIN)
                 .fullName("Tripler")
                 .email("tripler@test.com")
                 .passwordHash(new BCryptPasswordEncoder(12).encode("password"))

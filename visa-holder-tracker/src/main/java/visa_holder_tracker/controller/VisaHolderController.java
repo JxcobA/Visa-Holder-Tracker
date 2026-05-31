@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import visa_holder_tracker.dto.ExpiryAlertResponse;
 import visa_holder_tracker.dto.VisaHolderRequest;
 import visa_holder_tracker.entity.VisaHolder;
 import visa_holder_tracker.entity.VisaStatus;
@@ -30,7 +31,7 @@ public class VisaHolderController {
 
     private final VisaHolderService service;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     public ResponseEntity<VisaHolder> createVisaHolder(
             @Valid @RequestBody VisaHolderRequest request
@@ -82,7 +83,7 @@ public class VisaHolderController {
         );
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{passportNumber}")
     public ResponseEntity<VisaHolder> updateVisaHolder(
             @PathVariable String passportNumber,
@@ -111,4 +112,11 @@ public class VisaHolderController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/expiry-alerts")
+    public ResponseEntity<ExpiryAlertResponse> getExpiryAlerts(
+            @RequestParam(defaultValue = "30") int days) {
+        return ResponseEntity.ok(service.getExpiryAlerts(days));
+    }
+
 }

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import visa_holder_tracker.dto.ExpiryAlertResponse;
 import visa_holder_tracker.dto.VisaHolderRequest;
 import visa_holder_tracker.entity.VisaHolder;
 import visa_holder_tracker.entity.VisaStatus;
@@ -232,8 +233,7 @@ public class VisaHolderServiceTest {
 
     @Test
     void getExpiringSoon_noneExpiring_returnsEmptyList() {
-        when(visaHolderRepository.findExpiringSoon(any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(List.of());
+        when(visaHolderRepository.findExpiringSoon(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(List.of());
 
         List<VisaHolder> result = visaHolderService.getExpiringSoon(30);
 
@@ -326,4 +326,35 @@ public class VisaHolderServiceTest {
 
         assertThat(result.getExpiryDate()).isBefore(result.getEntryDate());
     }
+
+
+    @Test
+    void getExpiryAlerts_returnsBothLists() {
+        VisaHolder soonHolder = buildHolder(validRequest);
+        VisaHolder expiredHolder = buildHolder(buildRequest("EXP001", "Expired Ed", "British", "Student", VisaStatus.EXPIRED, LocalDateTime.now().minusDays(5), LocalDateTime.now().minusMonths(6)));
+
+        when(visaHolderRepository.findExpiringSoon(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(List.of(soonHolder));
+        when(visaHolderRepository.findExpired(any(LocalDateTime.class))).thenReturn(List.of(expiredHolder));
+
+        ExpiryAlertResponse result = visaHolderService.getExpiryAlerts(30);
+
+        assertThat(result.expiringSoon()).hasSize(1);
+        assertThat(result.expired()).hasSize(1);
+        assertThat(result.expiringSoon().get(0).getPassportNumber()).isEqualTo("PN123456");
+        assertThat(result.expired().get(0).getPassportNumber()).isEqualTo("EXP001");
+    }
+
+    @Test
+    void getExpiryAlerts_noneExpiring_returnsEmptyLists() {
+        when(visaHolderRepository.findExpiringSoon(any(), any())).thenReturn(List.of());
+        when(visaHolderRepository.findExpired(any())).thenReturn(List.of());
+
+        ExpiryAlertResponse result = visaHolderService.getExpiryAlerts(30);
+
+        assertThat(result.expiringSoon()).isEmpty();
+        assertThat(result.expired()).isEmpty();
+    }
+
+
+
 }

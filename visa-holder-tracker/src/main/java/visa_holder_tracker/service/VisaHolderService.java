@@ -2,7 +2,9 @@ package visa_holder_tracker.service;
 
 
 import org.springframework.stereotype.Service;
+import visa_holder_tracker.dto.ExpiryAlertResponse;
 import visa_holder_tracker.entity.VisaHolder;
+import visa_holder_tracker.exception.ResourceNotFoundException;
 import visa_holder_tracker.repository.VisaHolderRepository;
 
 import java.time.LocalDateTime;
@@ -68,12 +70,12 @@ public class VisaHolderService {
 
     public VisaHolder getVisaHolderByPassportNumber(String passportNumber) {
         return repository.findByPassportNumber(passportNumber)
-                .orElseThrow(() ->new RuntimeException("Visa Holder Not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Visa Holder Not Found"));
     }
 
     public VisaHolder updateVisaHolder(String passportNumber, VisaHolderRequest request){
         VisaHolder visaHolder = repository.findByPassportNumber(passportNumber)
-                .orElseThrow(()->new RuntimeException("VIsa Holder Not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Visa Holder Not Found"));
 
         visaHolder.setFullName(request.getFullName());
         visaHolder.setNationality(request.getNationality());
@@ -87,10 +89,10 @@ public class VisaHolderService {
 
     // (After merging and testing) AWS notification logic can be written and triggered from here
     public List<VisaHolder> getExpiringSoon(int days) {
-
         LocalDateTime today = LocalDateTime.now();
-        LocalDateTime cutoff = LocalDateTime.now().plusDays(days);
+        LocalDateTime cutoff = today.plusDays(days);
         return repository.findExpiringSoon(today, cutoff);
+        // Changed to just fetch data
     }
 
     public List<VisaHolder> getExpired() {
@@ -100,7 +102,7 @@ public class VisaHolderService {
 
     public void deleteVisaHolder(String passportNumber){
         VisaHolder visaHolder = repository.findByPassportNumber(passportNumber)
-                .orElseThrow(()->new RuntimeException("Visa Holder Not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Visa Holder Not Found"));
 
         repository.delete(visaHolder);
     }
@@ -112,7 +114,19 @@ public class VisaHolderService {
     public List<VisaHolder> getOverstayed() {
         LocalDateTime today = LocalDateTime.now();
         return repository.findOverstayed(today, VisaStatus.ACTIVE);
+        // Changed to just fetch data
     }
+
+
+    public ExpiryAlertResponse getExpiryAlerts(int days) {
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime cutoff = today.plusDays(days);
+        List<VisaHolder> soon = repository.findExpiringSoon(today, cutoff);
+        List<VisaHolder> expired = repository.findExpired(today);
+        return new ExpiryAlertResponse(soon, expired);
+    }
+
+
 
 }
 

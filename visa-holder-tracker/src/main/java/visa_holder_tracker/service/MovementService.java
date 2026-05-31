@@ -7,6 +7,7 @@ import visa_holder_tracker.dto.MovementResponse;
 import visa_holder_tracker.entity.Movement;
 import visa_holder_tracker.entity.MovementType;
 import visa_holder_tracker.entity.VisaHolder;
+import visa_holder_tracker.exception.ResourceNotFoundException;
 import visa_holder_tracker.repository.MovementRepository;
 import visa_holder_tracker.repository.VisaHolderRepository;
 
@@ -27,7 +28,7 @@ public class MovementService {
 
     public Movement logMovement(MovementRequest request) {
         VisaHolder holder = visaHolderRepository.findByPassportNumber(request.getPassportNumber())
-                .orElseThrow(() -> new RuntimeException("Visa Holder Not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Visa Holder Not Found"));
 
         Movement movement = new Movement();
         movement.setVisaHolder(holder);

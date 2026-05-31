@@ -21,6 +21,7 @@ import visa_holder_tracker.service.VisaHolderService;
 
 import java.util.List;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -90,7 +91,26 @@ class ReportControllerTest {
         mockMvc.perform(get("/api/reports/download/2026-05")).andExpect(status().isUnauthorized());
     }
 
+    @Test
+    @WithMockUser(roles = "USER")
+    void downloadReport_returnsPresignedUrlInBody() throws Exception {
+        when(reportService.generateAndUpload("2026-05")).thenReturn("https://fake-url.com");
 
+        mockMvc.perform(get("/api/reports/download/2026-05"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.url").value("https://fake-url.com"));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void downloadReport_callsServiceWithCorrectDate() throws Exception {
+        when(reportService.generateAndUpload("2025-11")).thenReturn("https://fake-url.com");
+
+        mockMvc.perform(get("/api/reports/download/2025-11"))
+                .andExpect(status().isOk());
+
+        verify(reportService).generateAndUpload("2025-11");
+    }
 
 
 }

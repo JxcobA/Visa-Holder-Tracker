@@ -27,6 +27,7 @@ import java.util.List;
 public class ReportService {
 
     private final VisaHolderRepository visaHolderRepository;
+    private final VisaHolderService visaHolderService;
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
 
@@ -43,17 +44,19 @@ public class ReportService {
         // Query holders
         List<VisaHolder> holders = visaHolderRepository.findByEntryDateBetween(start, end);
 
+        // Gather summary
+        long active = visaHolderService.countActive();
+        long expired = visaHolderService.getExpired().size();
+        long overstay = visaHolderService.getOverstayed().size();
+        long expiringSoon = visaHolderService.getExpiringSoon(30).size();
+
         // Serialized and sent to CSV in memory
-        String csv = toCsv(holders);
+        String csv = toCsv(holders, active, expired, overstay, expiringSoon);
 
         // Upload to S3
         String key = "reports/" + yearMonth + ".csv";
         s3Client.putObject(
-                PutObjectRequest.builder()
-                        .bucket(bucket)
-                        .key(key)
-                        .contentType("text/csv")
-                        .build(),
+                PutObjectRequest.builder().bucket(bucket).key(key).contentType("text/csv").build(),
                 RequestBody.fromString(csv)
         );
 
@@ -71,10 +74,24 @@ public class ReportService {
         return presigned.url().toString();
     }
 
-    private String toCsv(List<VisaHolder> holders) {
+    private String toCsv(List<VisaHolder> holders, long active, long expired, long overstay, long expiringSoon) {
         StringWriter sw = new StringWriter();
         try (CSVWriter writer = new CSVWriter(sw)) {
             // Header
+            writer.writeNext(new String[]{
+                    "Passport Number", "Full Name", "Nationality",
+                    "Visa Type", "Status", "Entry Date", "Expiry Date"
+            });
+            writer.writeNext(new String[]{
+                    String.valueOf(active),
+                    String.valueOf(expired),
+                    String.valueOf(overstay),
+                    String.valueOf(expiringSoon)
+            });
+            writer.writeNext(new String[]{});  // Blank separator rowl
+
+            // Entry-date holders section
+            writer.writeNext(new String[]{"VISA HOLDERS ENTERED THIS MONTH"});
             writer.writeNext(new String[]{
                     "Passport Number", "Full Name", "Nationality",
                     "Visa Type", "Status", "Entry Date", "Expiry Date"

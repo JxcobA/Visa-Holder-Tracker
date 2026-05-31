@@ -53,7 +53,7 @@ class MovementControllerTest {
 //    private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
     @Test
-    @WithMockUser(roles = {"USER"})
+    @WithMockUser(roles = {"ADMIN"})
     void logMovement_shouldReturnCreatedMovement() throws Exception {
         MovementRequest request = new MovementRequest();
         request.setPassportNumber("A1234567");
@@ -74,7 +74,7 @@ class MovementControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {"USER"})
+    @WithMockUser(roles = {"ADMIN"})
     void getMovements_shouldReturnMovementList() throws Exception {
         MovementResponse response = new MovementResponse(
                 1L, LocalDateTime.of(2026, 5, 29, 0, 0), null, "A1234567");
