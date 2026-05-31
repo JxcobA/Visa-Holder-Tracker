@@ -23,7 +23,6 @@ import visa_holder_tracker.service.VisaHolderService;
 
 import java.util.List;
 
-@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 @RestController
 @RequestMapping("/api/visa-holders")
 @RequiredArgsConstructor
@@ -31,6 +30,7 @@ public class VisaHolderController {
 
     private final VisaHolderService service;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<VisaHolder> createVisaHolder(
             @Valid @RequestBody VisaHolderRequest request
@@ -82,6 +82,7 @@ public class VisaHolderController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{passportNumber}")
     public ResponseEntity<VisaHolder> updateVisaHolder(
             @PathVariable String passportNumber,
