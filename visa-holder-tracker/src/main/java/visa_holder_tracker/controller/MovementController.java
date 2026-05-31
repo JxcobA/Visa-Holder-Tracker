@@ -21,7 +21,7 @@ public class MovementController {
 
     private final MovementService movementService;
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Movement> logMovement(
             @Valid @RequestBody MovementRequest request) {
