@@ -1,8 +1,8 @@
 # =============================================================================
-# 3) spring-app.yaml  — APPLY LAST
+# 3) springApp.yaml  — APPLY LAST
 # Visa Holder Tracker (Spring Boot): Deployment + Service.
 # Container listens on 9000 (matches EXPOSE 9000 in your Dockerfile).
-#   kubectl apply -f spring-app.yaml
+#   kubectl apply -f springApp.yaml
 # =============================================================================
 
 apiVersion: apps/v1
