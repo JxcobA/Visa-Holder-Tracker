@@ -2,27 +2,37 @@ pipeline {
     agent any
 
     stages {
+
         stage('Build') {
             steps {
-                sh './mvnw clean compile'
+                dir('visa-holder-tracker') {
+                    sh 'chmod +x mvnw'
+                    sh './mvnw clean compile'
+                }
             }
         }
 
         stage('Test') {
             steps {
-                sh './mvnw test'
+                dir('visa-holder-tracker') {
+                    sh './mvnw test'
+                }
             }
         }
 
         stage('Coverage') {
             steps {
-                sh './mvnw jacoco:report'
+                dir('visa-holder-tracker') {
+                    sh './mvnw jacoco:report'
+                }
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t visa-holder-tracker .'
+                dir('visa-holder-tracker') {
+                    sh 'docker build -t visa-holder-tracker .'
+                }
             }
         }
     }
