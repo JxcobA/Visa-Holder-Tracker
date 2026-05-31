@@ -18,7 +18,7 @@ data:
   SPRING_JPA_HIBERNATE_DDL_AUTO: update
   SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
   POSTGRES_DB: visa_holder_tracker
-  SPRING_SQL_INIT_PLATFORM=postgres: postgres
+  SPRING_SQL_INIT_PLATFORM=postgres: postgresData
   AWS_REGION: eu-west-2
   AWS_S3_BUCKET: visa-holder-reports
   AWS_SQS_QUEUE_URL: https://sqs.eu-west-2.amazonaws.com/158648291264/visa-violations

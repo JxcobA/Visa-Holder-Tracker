@@ -23,7 +23,7 @@ INSERT INTO visa_holders (passport_number, full_name, nationality, visa_type, ex
 VALUES ('VH001', 'Aiko Tanaka', 'Japanese', 'Student', TIMESTAMP '2027-01-15 00:00:00', TIMESTAMP '2025-09-01 00:00:00', 'ACTIVE');
 
 INSERT INTO visa_holders (passport_number, full_name, nationality, visa_type, expiry_date, entry_date, status)
-VALUES ('VH002', 'Luca Rossi', 'Italian', 'Work', NOW() + INTERVAL '20 days', TIMESTAMP '2024-06-01 00:00:00', 'ACTIVE');
+VALUES ('VH002', 'Luca Rossi', 'Italian', 'Work', NOW() + INTERVAL '20' DAY, TIMESTAMP '2024-06-01 00:00:00', 'ACTIVE');
 
 INSERT INTO visa_holders (passport_number, full_name, nationality, visa_type, expiry_date, entry_date, status)
 VALUES ('VH003', 'Fatima Al-Hassan', 'Moroccan', 'Tourist', TIMESTAMP '2024-11-30 00:00:00', TIMESTAMP '2024-08-01 00:00:00', 'EXPIRED');
