@@ -1,0 +1,124 @@
+# =============================================================================
+# PostgreSQL — Secret, PersistentVolumeClaim, Deployment, Service
+# For the Visa Holder Tracker Spring Boot application.
+# Apply with:  kubectl apply -f postgres.yaml
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Secret: database credentials.
+# NOTE: stringData values are plain text here for readability; Kubernetes
+# base64-encodes them on apply. Replace these before using anywhere real,
+# ideally via a sealed secret / external secret manager.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  labels:
+    app: postgres
+type: Opaque
+stringData:
+  POSTGRES_DB: visa_holder_tracker
+  POSTGRES_USER: visa_app
+  POSTGRES_PASSWORD: change-me-strong-password
+---
+# -----------------------------------------------------------------------------
+# PersistentVolumeClaim: durable storage so data survives pod restarts.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  labels:
+    app: postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  # storageClassName: standard   # uncomment/set if your cluster needs an explicit class
+---
+# -----------------------------------------------------------------------------
+# Deployment: single PostgreSQL replica.
+# Postgres is stateful — keep replicas at 1 with a Deployment + RWO PVC.
+# (For production you'd typically use a StatefulSet or a managed DB.)
+# -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate          # avoid two pods mounting the same RWO volume
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - name: postgres
+              containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: postgres-secret
+          env:
+            # Keep PGDATA in a subdirectory so the volume's lost+found etc.
+            # don't collide with Postgres' init checks.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "visa_app", "-d", "visa_holder_tracker"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "visa_app", "-d", "visa_holder_tracker"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+---
+# -----------------------------------------------------------------------------
+# Service: stable in-cluster DNS name "postgres" on port 5432.
+# ClusterIP (default) keeps the DB internal — the Spring app reaches it at
+# jdbc:postgresql://postgres:5432/visa_holder_tracker
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
