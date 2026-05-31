@@ -1,30 +1,10 @@
 # =============================================================================
-# PostgreSQL — Secret, PersistentVolumeClaim, Deployment, Service
-# For the Visa Holder Tracker Spring Boot application.
-# Apply with:  kubectl apply -f postgres.yaml
+# 2) postgres.yaml  — APPLY SECOND
+# PostgreSQL: PersistentVolumeClaim + Deployment + Service.
+# Reads credentials/config from db-config + db-secret (see db-config.yaml).
+#   kubectl apply -f postgres.yaml
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# Secret: database credentials.
-# NOTE: stringData values are plain text here for readability; Kubernetes
-# base64-encodes them on apply. Replace these before using anywhere real,
-# ideally via a sealed secret / external secret manager.
-# -----------------------------------------------------------------------------
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-secret
-  labels:
-    app: postgres
-type: Opaque
-stringData:
-  POSTGRES_DB: visa_holder_tracker
-  POSTGRES_USER: visa_app
-  POSTGRES_PASSWORD: change-me-strong-password
----
-# -----------------------------------------------------------------------------
-# PersistentVolumeClaim: durable storage so data survives pod restarts.
-# -----------------------------------------------------------------------------
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -39,11 +19,6 @@ spec:
       storage: 2Gi
   # storageClassName: standard   # uncomment/set if your cluster needs an explicit class
 ---
-# -----------------------------------------------------------------------------
-# Deployment: single PostgreSQL replica.
-# Postgres is stateful — keep replicas at 1 with a Deployment + RWO PVC.
-# (For production you'd typically use a StatefulSet or a managed DB.)
-# -----------------------------------------------------------------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -69,11 +44,11 @@ spec:
             - name: postgres
               containerPort: 5432
           envFrom:
+            - configMapRef:
+                name: db-config      # provides POSTGRES_DB
             - secretRef:
-                name: postgres-secret
+                name: db-secret      # provides POSTGRES_USER, POSTGRES_PASSWORD
           env:
-            # Keep PGDATA in a subdirectory so the volume's lost+found etc.
-            # don't collide with Postgres' init checks.
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
           volumeMounts:
@@ -86,6 +61,8 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+          # These probe args are literals. If you change POSTGRES_USER or
+          # POSTGRES_DB in db-config.yaml, update them here too.
           readinessProbe:
             exec:
               command: ["pg_isready", "-U", "visa_app", "-d", "visa_holder_tracker"]
@@ -103,11 +80,6 @@ spec:
           persistentVolumeClaim:
             claimName: postgres-pvc
 ---
-# -----------------------------------------------------------------------------
-# Service: stable in-cluster DNS name "postgres" on port 5432.
-# ClusterIP (default) keeps the DB internal — the Spring app reaches it at
-# jdbc:postgresql://postgres:5432/visa_holder_tracker
-# -----------------------------------------------------------------------------
 apiVersion: v1
 kind: Service
 metadata:

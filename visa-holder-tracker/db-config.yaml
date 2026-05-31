@@ -1,0 +1,32 @@
+# =============================================================================
+# 1) db-config.yaml  — APPLY FIRST
+# DB connection config: ConfigMap (non-sensitive) + Secret (sensitive).
+# postgres.yaml and spring-app.yaml both depend on these.
+#   kubectl apply -f db-config.yaml
+# =============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+  labels:
+    app: visa-holder-tracker
+data:
+  # "postgres" is the in-cluster DNS name of the Postgres Service.
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/visa_holder_tracker
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+  POSTGRES_DB: visa_holder_tracker
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+  labels:
+    app: visa-holder-tracker
+type: Opaque
+stringData:
+  POSTGRES_USER: visa_app
+  POSTGRES_PASSWORD: change-me-strong-password
+  # Must be Base64 (GenerateJWTToken does Decoders.BASE64.decode).
+  JWT_SECRETKEY: dGhpcy1pcy1hLXRlc3Qtb25seS1zZWNyZXQta2V5LWZvci1qd3Qtc2lnbmluZy0xMjM0NTY3ODkw

@@ -1,34 +1,10 @@
 # =============================================================================
-# Visa Holder Tracker (Spring Boot) — Secret, Deployment, Service
-# Apply AFTER postgres.yaml:  kubectl apply -f visa-holder-tracker.yaml
-#
-# The container listens on 9000 (matches EXPOSE 9000 in your Dockerfile).
-# DB connection + JWT secret are injected via environment variables that map
-# onto Spring Boot relaxed-binding property names:
-#   SPRING_DATASOURCE_URL        -> spring.datasource.url
-#   SPRING_DATASOURCE_USERNAME   -> spring.datasource.username
-#   SPRING_DATASOURCE_PASSWORD   -> spring.datasource.password
-#   JWT_SECRETKEY                -> jwt.secretkey   (used by GenerateJWTToken)
+# 3) spring-app.yaml  — APPLY LAST
+# Visa Holder Tracker (Spring Boot): Deployment + Service.
+# Container listens on 9000 (matches EXPOSE 9000 in your Dockerfile).
+#   kubectl apply -f spring-app.yaml
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# Secret: app-level secret (JWT signing key).
-# Must be a Base64-encoded value, since GenerateJWTToken does
-# Decoders.BASE64.decode(secretKey). Replace with your own strong key.
-# -----------------------------------------------------------------------------
-apiVersion: v1
-kind: Secret
-metadata:
-  name: visa-app-secret
-  labels:
-    app: visa-holder-tracker
-type: Opaque
-stringData:
-  JWT_SECRETKEY: dGhpcy1pcy1hLXRlc3Qtb25seS1zZWNyZXQta2V5LWZvci1qd3Qtc2lnbmluZy0xMjM0NTY3ODkw
----
-# -----------------------------------------------------------------------------
-# Deployment: the Spring Boot API.
-# -----------------------------------------------------------------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,38 +23,32 @@ spec:
     spec:
       containers:
         - name: visa-holder-tracker
-          # Replace with your built/pushed image, e.g. myregistry/visa-holder-tracker:0.0.1
+          # Replace with your built/pushed image if different.
           image: visa-holder-tracker:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 9000
+          # SPRING_DATASOURCE_URL, SPRING_JPA_*, POSTGRES_DB from the ConfigMap;
+          # POSTGRES_USER/POSTGRES_PASSWORD/JWT_SECRETKEY from the Secret.
+          envFrom:
+            - configMapRef:
+                name: db-config
+            - secretRef:
+                name: db-secret
+          # Bridge the Postgres-named credentials onto the property names Spring
+          # expects, sourced from the same Secret (single source of truth).
           env:
-            # --- Datasource: points at the postgres Service from postgres.yaml ---
-            - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://postgres:5432/visa_holder_tracker
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: db-secret
                   key: POSTGRES_USER
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: db-secret
                   key: POSTGRES_PASSWORD
-            # Let Hibernate manage/validate schema. Adjust to taste:
-            # 'update' for dev, 'validate' or 'none' once you manage migrations.
-            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
-              value: update
-            - name: SPRING_JPA_DATABASE_PLATFORM
-              value: org.hibernate.dialect.PostgreSQLDialect
-            # --- JWT signing key ---
-            - name: JWT_SECRETKEY
-              valueFrom:
-                secretKeyRef:
-                  name: visa-app-secret
-                  key: JWT_SECRETKEY
           resources:
             requests:
               cpu: "250m"
@@ -86,8 +56,7 @@ spec:
             limits:
               cpu: "1"
               memory: "1Gi"
-          # Actuator health endpoint is permitted in LoginSecurityConfig,
-          # so probes can hit it without authentication.
+          # Actuator health endpoint is permitted in LoginSecurityConfig.
           readinessProbe:
             httpGet:
               path: /actuator/health
@@ -105,11 +74,6 @@ spec:
             timeoutSeconds: 3
             failureThreshold: 3
 ---
-# -----------------------------------------------------------------------------
-# Service: exposes the app inside the cluster on port 80 -> container 9000.
-# Change type to LoadBalancer (cloud) or NodePort to reach it externally,
-# or front it with an Ingress.
-# -----------------------------------------------------------------------------
 apiVersion: v1
 kind: Service
 metadata:
