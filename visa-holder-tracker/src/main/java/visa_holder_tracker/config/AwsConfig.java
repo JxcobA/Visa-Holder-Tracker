@@ -59,6 +59,8 @@ public class AwsConfig {
         return S3Client.builder()
                 .region(Region.of(region))
                 .credentialsProvider(DefaultCredentialsProvider.create())
+                // DefaultCredentialsProvider checks (in order):
+                // Environment variables (AWS_ACCESS_KEY_ID), credentials file (that is used locally), IAM role
                 .build();
     }
 
@@ -74,7 +76,7 @@ public class AwsConfig {
      * @return configured {@link SqsClient} instance
      */
     @Bean
-    public SqsClient sqsClient() {
+    public SqsClient sqsClient() { // Same pattern - region + credentials
         return SqsClient.builder()
                 .region(Region.of(region))
                 .credentialsProvider(DefaultCredentialsProvider.create())
@@ -96,8 +98,12 @@ public class AwsConfig {
     @Bean
     public S3Presigner s3Presigner() {
         return S3Presigner.builder()
+                // Separated from S3Client, only used for temp signed URLs
                 .region(Region.of(region))
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
     }
+
+    // S3Client uploads downloads
+    // S3Presigner creates shareable time limited links
 }

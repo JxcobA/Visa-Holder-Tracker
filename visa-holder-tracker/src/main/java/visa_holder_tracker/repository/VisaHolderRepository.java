@@ -46,6 +46,8 @@ public interface VisaHolderRepository
             VisaStatus status,
             Pageable pageable
     );
+    // Spring will Generate:
+    // SELECT * FROM visa_holders WHERE status = ? LIMIT ? OFFSET ?
 
 
     /**
@@ -69,6 +71,7 @@ public interface VisaHolderRepository
             String fullName,
             Pageable pageable
     );
+    // SELECT * FROM visa_holders WHERE LOWER(full_name) LIKE LOWER ('%?%')
 
 
     /**
@@ -78,7 +81,7 @@ public interface VisaHolderRepository
      * @return optional containing the matching visa holder
      */
     Optional<VisaHolder> findByPassportNumber(String passportNumber);
-
+    // SELECT * FROM visa_holders WHERE passport_number = ?
 
     /**
      * Counts visa holders by visa status.
@@ -101,6 +104,7 @@ public interface VisaHolderRepository
             @Param("today") LocalDateTime today,
             @Param("cutoff") LocalDateTime cutoff
     );
+    // This JPQL uses the Java class names, VisaHolder and field name expiryDate rather than DB table names
 
     /**
      * Retrieves visa holders whose visas

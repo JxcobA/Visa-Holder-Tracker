@@ -93,16 +93,17 @@ public class ReportService {
      */
 
     // Builds a CSV of all visa holders who entered in the given month (yyyy-MM)
-     // Uploads CSV to S3, returns a presigned URL
+    // Uploads CSV to S3, returns a presigned URL
     public String generateAndUpload(String yearMonth) {
+        // Creates time-formatted variables for the start and end of the month
         YearMonth ym = YearMonth.parse(yearMonth, DateTimeFormatter.ofPattern("yyyy-MM"));
         LocalDateTime start = ym.atDay(1).atStartOfDay();
         LocalDateTime end   = ym.atEndOfMonth().plusDays(1).atStartOfDay();
 
-        // Query holders
+        // Searches repo for visa holders between the start and end of the month
         List<VisaHolder> holders = visaHolderRepository.findByEntryDateBetween(start, end);
 
-        // Gather summary
+        // Gather count summaries
         long active = visaHolderService.countActive();
         long expired = visaHolderService.getExpired().size();
         long overstay = visaHolderService.getOverstayed().size();
@@ -112,24 +113,29 @@ public class ReportService {
         String csv = toCsv(holders, active, expired, overstay, expiringSoon);
 
         // Upload to S3
-        String key = "reports/" + yearMonth + ".csv";
-        s3Client.putObject(
+        String key = "reports/" + yearMonth + ".csv"; // Builds the object key (path + file name variable + filetype)
+        s3Client.putObject( // AWS S3 method: Uploads a file (object) to a bucket
+
+                // Starts a builder to construct the request object, defines metadata + upload destination
+                // builder + target bucket + key (path + filename) + file type + build (returns PutObjectRequest)
                 PutObjectRequest.builder().bucket(bucket).key(key).contentType("text/csv").build(),
-                RequestBody.fromString(csv)
+                // Defines file content
+                RequestBody.fromString(csv) //ReuqestBody representing data converted into a stream S3 can upload
         );
 
-        // Generate presigned URL (has a 15-minute expiry)
+        // Generate presigned URL allowing access without AWS credentials (temporary, has a 15-minute expiry)
         PresignedGetObjectRequest presigned = s3Presigner.presignGetObject(
-                GetObjectPresignRequest.builder()
-                        .signatureDuration(Duration.ofMinutes(15))
-                        .getObjectRequest(GetObjectRequest.builder()
-                                .bucket(bucket)
-                                .key(key)
-                                .build())
-                        .build()
+                GetObjectPresignRequest.builder() // Configures presigned URL
+                        .signatureDuration(Duration.ofMinutes(15)) // Duration url is valid for
+                        .getObjectRequest(GetObjectRequest.builder() // Embeds S3 GET reques
+                                .bucket(bucket) // Bucket name
+                                .key(key) // Key: object path + filename (e.g. reports/2026-06.csv)
+                                .build()) // Creates the GetObjectRequest
+                        .build() // Finalises the GetObjectPresignRequest
+                // This PresignedGetObjectRequest contains a signed URL, HTTP method and headers
         );
 
-        return presigned.url().toString();
+        return presigned.url().toString(); // Returns and stringifies url object
     }
 
 
@@ -153,45 +159,45 @@ public class ReportService {
      * @throws RuntimeException if CSV generation fails
      */
     private String toCsv(List<VisaHolder> holders, long active, long expired, long overstay, long expiringSoon) {
-        StringWriter sw = new StringWriter();
-        try (CSVWriter writer = new CSVWriter(sw)) {
-            // Header
+        StringWriter sw = new StringWriter(); // In memory buffer to create text output
+        try (CSVWriter writer = new CSVWriter(sw)) { // Try-with-resources, automatically closes writer
+            // Writes column headers (first row in csv)
             writer.writeNext(new String[]{
                     "Passport Number", "Full Name", "Nationality",
                     "Visa Type", "Status", "Entry Date", "Expiry Date"
             });
-            writer.writeNext(new String[]{
+            writer.writeNext(new String[]{ // Writes counts, turns primitive data types into text
                     String.valueOf(active),
                     String.valueOf(expired),
                     String.valueOf(overstay),
                     String.valueOf(expiringSoon)
             });
-            writer.writeNext(new String[]{});  // Blank separator rowl
+            writer.writeNext(new String[]{});  // Blank separator row
 
             // Entry-date holders section
-            writer.writeNext(new String[]{"VISA HOLDERS ENTERED THIS MONTH"});
-            writer.writeNext(new String[]{
+            writer.writeNext(new String[]{"VISA HOLDERS ENTERED THIS MONTH"}); // Single cell row, like a title?
+            writer.writeNext(new String[]{ // Column headers repeated for new data section
                     "Passport Number", "Full Name", "Nationality",
                     "Visa Type", "Status", "Entry Date", "Expiry Date"
             });
             // Rows
-            for (VisaHolder h : holders) {
-                writer.writeNext(new String[]{
+            for (VisaHolder h : holders) { // Iterates over all holders
+                writer.writeNext(new String[]{ // Uses getters
                         h.getPassportNumber(),
                         h.getFullName(),
                         h.getNationality(),
                         h.getVisaType(),
                         h.getStatus().name(),
-                        h.getEntryDate().toString(),
-                        h.getExpiryDate().toString()
+                        h.getEntryDate().toString(), // Converted to string
+                        h.getExpiryDate().toString() // Converted to string
                 });
             }
-        } catch (Exception e) {
+        } catch (Exception e) { // Error handling, wraps as runtime exception
             throw new RuntimeException("Failed to generate CSV", e);
         }
 
 
-        return sw.toString();
+        return sw.toString(); // Converts accumulated content into a csv string
     }
 
 

@@ -17,7 +17,7 @@ import java.util.List;
  * </p>
  */
 public interface MovementRepository extends JpaRepository<Movement, Long> {
-
+    // Uses a Long as Movement uses an auto-incremented numeric ID
     /**
      * Retrieves all movement records associated
      * with a visa holder passport number.
@@ -26,4 +26,6 @@ public interface MovementRepository extends JpaRepository<Movement, Long> {
      * @return list of movement records
      */
     List<Movement> findByVisaHolderPassportNumber(String passportNumber);
+    // Spring navigates the relationship: Movement -> visaHolder -> passportNumber -> SELECT * FROM movement WHERE passport_number =
+
 }

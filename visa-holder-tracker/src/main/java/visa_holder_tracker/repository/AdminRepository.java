@@ -17,6 +17,7 @@ import java.util.Optional;
  * </p>
  */
 // Uses Long for the id, as Admin doesn't use passport number
+// If findByFullName in UserRepository fails it falls back to this
 public interface AdminRepository extends JpaRepository<Admin, Long> {
 
     /**

@@ -53,6 +53,7 @@ public class ReportScheduler {
         // Upload last month's report:
         String lastMonth = YearMonth.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM"));
 
+        // Builds csv, uploads to S3
         reportService.generateAndUpload(lastMonth);
     }
 

@@ -26,7 +26,7 @@ import visa_holder_tracker.repository.AdminRepository;
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService{
-
+    // UserDetailsService is a Spring Security interface
 
     /**
      * Repository used to retrieve regular application users.
@@ -61,22 +61,25 @@ public class CustomUserDetailsService implements UserDetailsService{
      * @return authenticated user's {@link UserDetails}
      * @throws UsernameNotFoundException if no matching user exists
      */
+    // This is called automatically during authentication
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Check users table first
+        // UserDetails is used by Spring Security to verify BCrypt passwords and assign roles
+        // If found in users table UserDetails is built with USER role
         return userRepository.findByFullName(username)
                 .map(user -> org.springframework.security.core.userdetails.User
                         .withUsername(user.getFullName())
                         .password(user.getPasswordHash())
-                        .roles(user.getRole().name().replace("ROLE_", ""))
+                        .roles(user.getRole().name().replace("ROLE_", "")) // Spring adds ROLE_ prefix, this removes it
                         .build())
-                // Fall back to admins table
+                // If not found checks admins table
                 .or(() -> adminRepository.findByFullName(username)
                         .map(admin -> org.springframework.security.core.userdetails.User
                                 .withUsername(admin.getFullName())
                                 .password(admin.getPasswordHash())
-                                .roles(admin.getRole().name().replace("ROLE_", ""))
+                                .roles(admin.getRole().name().replace("ROLE_", "")) // Spring adds ROLE_ prefix, this removes it
                                 .build()))
+                // If found in neither auth fails (401)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 }

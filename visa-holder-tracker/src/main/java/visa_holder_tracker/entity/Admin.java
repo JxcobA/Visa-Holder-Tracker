@@ -11,7 +11,7 @@ import lombok.*;
  *
  * <p>
  * Admin accounts are used for authentication
- * and authorization in the system and contain:
+ * and authorisation in the system and contain:
  * <ul>
  *     <li>Login credentials</li>
  *     <li>Email information</li>

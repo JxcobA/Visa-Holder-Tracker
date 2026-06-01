@@ -51,11 +51,12 @@ public class NotificationScheduler {
      * Runs automatically every day at 08:00 AM.
      * </p>
      */
-    // Use cron to run every day at 08:00 (am)
+    // Uses cron to run every day at 08:00 (am)
     @Scheduled(cron = "0 0 8 * * *")
     public void notifyExpiringSoon() {
-        List<VisaHolder> expiring = visaHolderService.getExpiringSoon(30);
+        List<VisaHolder> expiring = visaHolderService.getExpiringSoon(30); // Within 30 days
         expiring.forEach(sqsNotificationService::notifyExpiringSoon);
+        // :: is a method reference, shorthand for holder > sqsNotificationService.notifyExpiringSoon(holder)
     }
 
 
