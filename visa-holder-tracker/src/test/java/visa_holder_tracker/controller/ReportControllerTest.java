@@ -1,7 +1,6 @@
 package visa_holder_tracker.controller;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -11,7 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import visa_holder_tracker.authentication.LoginSecurityConfig;
 import visa_holder_tracker.config.CustomUserDetailsService;
 import visa_holder_tracker.entity.VisaHolder;
-import visa_holder_tracker.jwt_utils.GenerateJWTToken;
+import visa_holder_tracker.jwt_utils.GenerateJwtToken;
 import visa_holder_tracker.jwt_utils.JwtFilter;
 import visa_holder_tracker.repository.AdminRepository;
 import visa_holder_tracker.repository.UserRepository;
@@ -27,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ReportController.class)
-@Import({LoginSecurityConfig.class, CustomUserDetailsService.class, JwtFilter.class, GenerateJWTToken.class})
+@Import({LoginSecurityConfig.class, CustomUserDetailsService.class, JwtFilter.class, GenerateJwtToken.class})
 class ReportControllerTest {
 
     @Autowired

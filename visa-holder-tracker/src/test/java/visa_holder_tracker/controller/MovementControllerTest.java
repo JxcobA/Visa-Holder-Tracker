@@ -15,7 +15,7 @@ import visa_holder_tracker.dto.MovementRequest;
 import visa_holder_tracker.dto.MovementResponse;
 import visa_holder_tracker.entity.Movement;
 import visa_holder_tracker.entity.MovementType;
-import visa_holder_tracker.jwt_utils.GenerateJWTToken;
+import visa_holder_tracker.jwt_utils.GenerateJwtToken;
 import visa_holder_tracker.jwt_utils.JwtFilter;
 import visa_holder_tracker.repository.AdminRepository;
 import visa_holder_tracker.repository.UserRepository;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MovementController.class)
-@Import({LoginSecurityConfig.class, CustomUserDetailsService.class, JwtFilter.class, GenerateJWTToken.class})
+@Import({LoginSecurityConfig.class, CustomUserDetailsService.class, JwtFilter.class, GenerateJwtToken.class})
 class MovementControllerTest {
 
     @Autowired

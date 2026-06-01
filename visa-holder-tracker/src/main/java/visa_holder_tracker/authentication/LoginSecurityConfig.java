@@ -49,7 +49,7 @@ public class LoginSecurityConfig {
                                 "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Permit any request to the mentioned endpoints
                         .anyRequest().authenticated() // Any other request fall under the default authentication.
                 )
-                .exceptionHandling(ex -> ex // Registeres an entry point so 401 doesn't fall back to 403
+                .exceptionHandling(ex -> ex // Registers an entry point so 401 doesn't fall back to 403
                         .authenticationEntryPoint((request, response, authException) ->
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
                         )
@@ -57,7 +57,7 @@ public class LoginSecurityConfig {
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build(); // Applies all the new rules.
+        return http.build(); // Apply all the new rules.
     }
 
     @Bean
@@ -78,24 +78,5 @@ public class LoginSecurityConfig {
         // get spring's built-in manager (Automatically uses our authenticationProvider)
         return config.getAuthenticationManager();
     }
-
-    // Temporal for testing should be removed once we have our database grabbing the details
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        UserDetails user = User
-//                .withUsername("user")
-//                .password(new BCryptPasswordEncoder(12).encode("password"))
-//                .roles("USER")
-//                .build();
-//
-//        UserDetails admin = User
-//                .withUsername("admin")
-//                .password(new BCryptPasswordEncoder(12).encode("password43"))
-//                .roles("ADMIN")
-//                .build();
-//
-//        return new InMemoryUserDetailsManager(user, admin);
-//    }
-
 
 }

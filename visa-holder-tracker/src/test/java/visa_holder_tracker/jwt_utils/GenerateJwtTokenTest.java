@@ -10,13 +10,13 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-class GenerateJWTTokenTest {
+class GenerateJwtTokenTest {
 
-    private GenerateJWTToken jwtService;
+    private GenerateJwtToken jwtService;
 
     @BeforeEach
     void setUp() {
-        jwtService = new GenerateJWTToken(
+        jwtService = new GenerateJwtToken(
                 "dGhpcy1pcy1hLXRlc3Qtb25seS1zZWNyZXQta2V5LWZvci1qd3Qtc2lnbmluZy0xMjM0NTY3ODkw");
     }
 

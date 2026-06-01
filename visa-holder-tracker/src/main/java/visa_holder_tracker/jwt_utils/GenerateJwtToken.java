@@ -12,12 +12,12 @@ import java.util.Date;
 
 // A service bean class
 @Service
-public class GenerateJWTToken {
+public class GenerateJwtToken {
 
     // Base64 encoded secret key for signing the token
     private final SecretKey secretKey;
 
-    public GenerateJWTToken(@Value("${jwt.secretkey}") String secretKey){
+    public GenerateJwtToken(@Value("${jwt.secretkey}") String secretKey){
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 

@@ -22,7 +22,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     // Auto-injects the GenerateJWTToken bean in the JWT filter class
     @Autowired
-    GenerateJWTToken jwtService; // Helps read and parse tokens
+    GenerateJwtToken jwtService; // Helps read and parse tokens
 
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,

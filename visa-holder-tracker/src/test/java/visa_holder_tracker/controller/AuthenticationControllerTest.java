@@ -13,7 +13,7 @@ import visa_holder_tracker.controller.AuthenticationController.LoginRequest;
 import visa_holder_tracker.entity.Role;
 import visa_holder_tracker.entity.User;
 import visa_holder_tracker.entity.Admin;
-import visa_holder_tracker.jwt_utils.GenerateJWTToken;
+import visa_holder_tracker.jwt_utils.GenerateJwtToken;
 import visa_holder_tracker.jwt_utils.JwtFilter;
 import visa_holder_tracker.repository.AdminRepository;
 import visa_holder_tracker.repository.UserRepository;
@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthenticationController.class)
-@Import({LoginSecurityConfig.class, CustomUserDetailsService.class, JwtFilter.class, GenerateJWTToken.class})
+@Import({LoginSecurityConfig.class, CustomUserDetailsService.class, JwtFilter.class, GenerateJwtToken.class})
 class AuthenticationControllerTest {
 
     @Autowired

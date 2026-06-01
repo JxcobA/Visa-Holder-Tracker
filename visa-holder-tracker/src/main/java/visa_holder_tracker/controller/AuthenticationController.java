@@ -1,14 +1,12 @@
 package visa_holder_tracker.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import visa_holder_tracker.jwt_utils.GenerateJWTToken;
+import visa_holder_tracker.jwt_utils.GenerateJwtToken;
 
 import java.util.Map;
 
@@ -18,11 +16,11 @@ import java.util.Map;
 @RequestMapping("/api/auth") // Authentication endpoint path in localhost
 public class AuthenticationController {
 
-    private final GenerateJWTToken jwtService; // JWT bean service
+    private final GenerateJwtToken jwtService; // JWT bean service
     private final AuthenticationManager authManager; // Authentication Manager bean service
     public record LoginRequest(String username, String password) {} // Credentials record holder variable
 
-    public AuthenticationController(GenerateJWTToken jwtService, AuthenticationManager authManager) {
+    public AuthenticationController(GenerateJwtToken jwtService, AuthenticationManager authManager) {
         this.jwtService = jwtService; // Declare the JWT service in the class
         this.authManager = authManager; // Declare the JWT service in the class
     }
