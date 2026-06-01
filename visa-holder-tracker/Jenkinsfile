@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Build') {
+            steps {
+                dir('visa-holder-tracker') {
+                    sh 'chmod +x mvnw'
+                    sh './mvnw clean compile'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('visa-holder-tracker') {
+                    sh './mvnw test'
+                }
+            }
+        }
+
+        stage('Coverage') {
+            steps {
+                dir('visa-holder-tracker') {
+                    sh './mvnw jacoco:report'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('visa-holder-tracker') {
+                    sh 'docker build -t visa-holder-tracker .'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            publishHTML([
+                reportName: 'JaCoCo Coverage',
+                reportDir: 'visa-holder-tracker/target/site/jacoco',
+                reportFiles: 'index.html',
+                keepAll: true,
+                alwaysLinkToLastBuild: true,
+                allowMissing: false
+            ])
+        }
+    }
+}
