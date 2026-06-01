@@ -52,7 +52,7 @@ public class VisaHolder {
     @Column(nullable = false)
     private VisaStatus status;
 
-    @OneToMany(mappedBy = "visaHolder")
+    @OneToMany(mappedBy = "visaHolder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Movement> movements;
 
 }

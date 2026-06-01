@@ -1,5 +1,9 @@
 package visa_holder_tracker.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +26,10 @@ public class ReportController {
     @Autowired
     private final ReportService reportService;
 
+    @Operation(
+            summary = "Returns a summary of different visa statuses.",
+            description = "Returns a count of each visa status."
+    )
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/api/reports/summary")
     public ResponseEntity<?> generateReport(){
@@ -34,6 +42,12 @@ public class ReportController {
         ));
     }
 
+    @Operation(
+            summary = "Generates a report and uploads to AWS Cloud.",
+            description =
+                    "Generates a summary report count of each visa status and uploads " +
+                    "it remotely to AWS S3 bucket and SQS."
+    )
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/api/reports/download/{date}")
     public ResponseEntity<?> downloadReport(@PathVariable String date) {

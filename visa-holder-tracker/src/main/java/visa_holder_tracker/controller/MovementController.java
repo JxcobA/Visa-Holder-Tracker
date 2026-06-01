@@ -1,5 +1,7 @@
 package visa_holder_tracker.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,10 @@ public class MovementController {
 
     private final MovementService movementService;
 
+    @Operation(
+            summary = "Logs entry or exit events for a visa holder.",
+            description = "Logs entry or exit events for a visa holder."
+    )
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Movement> logMovement(
@@ -29,6 +35,10 @@ public class MovementController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+    @Operation(
+            summary = "Returns a list of movements.",
+            description = "Returns a list of movements for the requested visa holder."
+    )
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{passportNumber}")
     public ResponseEntity<List<MovementResponse>> getMovements(

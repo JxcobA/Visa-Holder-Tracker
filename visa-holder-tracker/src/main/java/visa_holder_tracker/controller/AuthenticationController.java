@@ -1,5 +1,8 @@
 package visa_holder_tracker.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -8,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import visa_holder_tracker.jwt_utils.GenerateJWTToken;
 
 import java.util.Map;
+
 
 
 @RestController
@@ -23,6 +27,10 @@ public class AuthenticationController {
         this.authManager = authManager; // Declare the JWT service in the class
     }
 
+    @Operation(
+            summary = "Login to a user or admin account.",
+            description = "A JWT token is generated for the client."
+    )
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginEndpoint(
             @RequestBody // Binds the client request body to a java class
