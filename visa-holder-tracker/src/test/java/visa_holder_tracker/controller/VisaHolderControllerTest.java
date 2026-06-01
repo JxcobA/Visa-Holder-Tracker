@@ -24,25 +24,83 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
+
+/**
+ * Full integration tests for {@link VisaHolderController}.
+ *
+ * <p>
+ * These tests validate:
+ * <ul>
+ *     <li>JWT authentication and authorization flows.</li>
+ *     <li>Visa holder CRUD operations.</li>
+ *     <li>Search and filtering functionality.</li>
+ *     <li>Visa expiry tracking endpoints.</li>
+ *     <li>Role-based access for USER and ADMIN accounts.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * Unlike mocked controller tests, these tests run
+ * against the real Spring Boot application context,
+ * security configuration, repositories, JWT generation,
+ * and database layer.
+ * </p>
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class VisaHolderControllerTest {
 
+
+    /**
+     * Mock MVC client used to simulate
+     * authenticated HTTP requests.
+     */
     @Autowired
     MockMvc mockMvc;
 
+    /**
+     * Repository used for administrator
+     * test data setup.
+     */
     @Autowired
     AdminRepository adminRepository;
 
+    /**
+     * Repository used for cleaning
+     * movement-related test data.
+     */
     @Autowired
     MovementRepository movementRepository;
 
+    /**
+     * Repository used for regular user
+     * authentication test setup.
+     */
     @Autowired
     UserRepository userRepository;
 
+    /**
+     * Repository used for visa holder
+     * persistence and verification.
+     */
     @Autowired
     VisaHolderRepository visaHolderRepository;
 
+
+    /**
+     * Verifies that authenticated USER accounts
+     * can create visa holder records.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>User authentication using JWT.</li>
+     *     <li>Protected endpoint access.</li>
+     *     <li>Visa holder creation.</li>
+     *     <li>HTTP 201 Created responses.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void createVisaHolder_User() throws Exception {
         // 1. Seed a user and log in (anyone with USER/ADMIN can create)
@@ -79,6 +137,16 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.passportNumber").value("NEW999"));
     }
 
+
+    /**
+     * Verifies that authenticated ADMIN accounts
+     * can create visa holder records.
+     *
+     * <p>
+     * Ensures administrator roles have access
+     * to the create visa holder endpoint.
+     * </p>
+     */
     @Test
     void createVisaHolder_Admin() throws Exception {
         // 1. Seed a user and log in (anyone with USER/ADMIN can create)
@@ -114,6 +182,20 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.passportNumber").value("NEW999"));
     }
 
+
+    /**
+     * Verifies that USER accounts
+     * can retrieve paginated visa holder lists.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Authenticated endpoint access.</li>
+     *     <li>Pagination response structure.</li>
+     *     <li>Correct visa holder retrieval.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void getAllVisaHolders_User() throws Exception {
         // 1. Seed a couple of holders
@@ -150,6 +232,16 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.content.length()").value(2));
     }
 
+
+    /**
+     * Verifies that ADMIN accounts
+     * can retrieve paginated visa holder lists.
+     *
+     * <p>
+     * Ensures administrators are authorized
+     * to access visa holder listing endpoints.
+     * </p>
+     */
     @Test
     void getAllVisaHolders_Admin() throws Exception {
         // 1. Seed a couple of holders
@@ -186,6 +278,20 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.content.length()").value(2));
     }
 
+
+    /**
+     * Verifies that USER accounts
+     * can search visa holders by name.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Case-insensitive search functionality.</li>
+     *     <li>Search endpoint filtering behavior.</li>
+     *     <li>Correct search result responses.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void searchVisaHoldersByName_User() throws Exception {
         // 1. Seed a holder with a findable name
@@ -214,6 +320,15 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.content[0].fullName").value("Alice Findme"));
     }
 
+    /**
+     * Verifies that ADMIN accounts
+     * can search visa holders by name.
+     *
+     * <p>
+     * Ensures administrator users
+     * are authorized to perform searches.
+     * </p>
+     */
     @Test
     void searchVisaHoldersByName_Admin() throws Exception {
         // 1. Seed a holder with a findable name
@@ -242,6 +357,20 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.content[0].fullName").value("Alice Findme"));
     }
 
+
+    /**
+     * Verifies that USER accounts
+     * can filter visa holders by visa status.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Status filtering functionality.</li>
+     *     <li>Correct filtering results.</li>
+     *     <li>JSON response correctness.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void filterByStatus_User() throws Exception {
         // 1. Seed one ACTIVE and one EXPIRED holder
@@ -277,6 +406,15 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.content[0].fullName").value("Active One"));
     }
 
+    /**
+     * Verifies that ADMIN accounts
+     * can filter visa holders by visa status.
+     *
+     * <p>
+     * Ensures administrators are authorized
+     * to access filtering endpoints.
+     * </p>
+     */
     @Test
     void filterByStatus_Admin() throws Exception {
         // 1. Seed one ACTIVE and one EXPIRED holder
@@ -313,6 +451,20 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.content[0].fullName").value("Active One"));
     }
 
+    /**
+     * Verifies that USER accounts
+     * can retrieve visa holders
+     * by passport number.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Authenticated record retrieval.</li>
+     *     <li>Correct entity lookup.</li>
+     *     <li>JSON serialization behavior.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void getVisaHolderByPassportNumber_User() throws Exception {
         // 1. Seed a holder directly into the DB
@@ -346,6 +498,16 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.fullName").value("Readable Person"));
     }
 
+    /**
+     * Verifies that ADMIN accounts
+     * can retrieve visa holders
+     * by passport number.
+     *
+     * <p>
+     * Ensures administrator users
+     * can access protected retrieval endpoints.
+     * </p>
+     */
     @Test
     void getVisaHolderByPassportNumber_Admin() throws Exception {
         // 1. Seed a holder directly into the DB
@@ -378,6 +540,19 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.fullName").value("Readable Person"));
     }
 
+    /**
+     * Verifies that USER accounts
+     * can update visa holder records.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Update endpoint behavior.</li>
+     *     <li>Persistence of updated values.</li>
+     *     <li>Correct JSON response content.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void updateVisaHolder_User() throws Exception {
         // 1. Seed a holder with original values
@@ -427,6 +602,15 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.visaType").value("Student"));
     }
 
+    /**
+     * Verifies that ADMIN accounts
+     * can update visa holder records.
+     *
+     * <p>
+     * Ensures administrator users
+     * can perform update operations.
+     * </p>
+     */
     @Test
     void updateVisaHolder_Admin() throws Exception {
         // 1. Seed a holder with original values
@@ -475,6 +659,20 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$.visaType").value("Student"));
     }
 
+    /**
+     * Verifies that USER accounts
+     * can retrieve visa holders
+     * whose visas are expiring soon.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Expiry date filtering.</li>
+     *     <li>Expiring-soon endpoint behavior.</li>
+     *     <li>Correct response results.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void getExpiringSoon_User() throws Exception {
         // 1. Seed a holder expiring SOON (within 30 days)
@@ -513,6 +711,16 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$[0].fullName").value("Expiring Soon"));
     }
 
+    /**
+     * Verifies that ADMIN accounts
+     * can retrieve visa holders
+     * whose visas are expiring soon.
+     *
+     * <p>
+     * Ensures administrator users
+     * are authorized to access expiry endpoints.
+     * </p>
+     */
     @Test
     void getExpiringSoon_Admin() throws Exception {
         // 1. Seed a holder expiring SOON (within 30 days)
@@ -550,6 +758,19 @@ class VisaHolderControllerTest {
                 .andExpect(jsonPath("$[0].fullName").value("Expiring Soon"));
     }
 
+    /**
+     * Clears database state before each test.
+     *
+     * <p>
+     * Ensures test isolation by removing:
+     * <ul>
+     *     <li>Movement records</li>
+     *     <li>Visa holder records</li>
+     *     <li>User accounts</li>
+     *     <li>Administrator accounts</li>
+     * </ul>
+     * </p>
+     */
     @BeforeEach
     void cleanUp() {
         movementRepository.deleteAll();
@@ -558,6 +779,24 @@ class VisaHolderControllerTest {
         adminRepository.deleteAll();
     }
 
+    /**
+     * Performs authentication and retrieves
+     * a JWT token for secured endpoint testing.
+     *
+     * <p>
+     * This helper method:
+     * <ul>
+     *     <li>Sends login credentials to the authentication endpoint.</li>
+     *     <li>Extracts the generated JWT token from the response.</li>
+     *     <li>Returns the token for authenticated requests.</li>
+     * </ul>
+     * </p>
+     *
+     * @param username login username
+     * @param password login password
+     * @return generated JWT authentication token
+     * @throws Exception if authentication fails
+     */
     private String loginAndGetToken(String username, String password) throws Exception {
         String response = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

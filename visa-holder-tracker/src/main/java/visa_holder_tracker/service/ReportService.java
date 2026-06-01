@@ -22,19 +22,77 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+
+/**
+ * Service responsible for generating visa holder reports,
+ * exporting them as CSV files, uploading them to AWS S3,
+ * and generating secure downloadable URLs.
+ *
+ * <p>
+ * This service:
+ * <ul>
+ *     <li>Generates monthly visa holder reports.</li>
+ *     <li>Builds CSV report files in memory.</li>
+ *     <li>Uploads reports to AWS S3 storage.</li>
+ *     <li>Creates temporary pre-signed download URLs.</li>
+ *     <li>Provides visa compliance summary statistics.</li>
+ * </ul>
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class ReportService {
 
+    /**
+     * Repository used for visa holder database queries.
+     */
     private final VisaHolderRepository visaHolderRepository;
+
+    /**
+     * Service used for visa holder statistics
+     * and business logic operations.
+     */
     private final VisaHolderService visaHolderService;
+
+    /**
+     * AWS S3 client used for uploading report files.
+     */
     private final S3Client s3Client;
+
+    /**
+     * AWS S3 presigner used for generating
+     * temporary download URLs.
+     */
     private final S3Presigner s3Presigner;
 
+    /**
+     * AWS S3 bucket name used for report storage.
+     */
     @Value("${aws.s3.bucket}")
     private String bucket;
 
-     // Builds a CSV of all visa holders who entered in the given month (yyyy-MM)
+
+    /**
+     * Generates a monthly visa holder report,
+     * uploads it to AWS S3, and returns
+     * a pre-signed download URL.
+     *
+     * <p>
+     * The report includes:
+     * <ul>
+     *     <li>Visa holders who entered during the selected month.</li>
+     *     <li>Counts of active visas.</li>
+     *     <li>Counts of expired visas.</li>
+     *     <li>Counts of overstayed visas.</li>
+     *     <li>Counts of visas expiring soon.</li>
+     * </ul>
+     * </p>
+     *
+     * @param yearMonth target report month in {@code yyyy-MM} format
+     * @return pre-signed S3 download URL
+     */
+
+    // Builds a CSV of all visa holders who entered in the given month (yyyy-MM)
      // Uploads CSV to S3, returns a presigned URL
     public String generateAndUpload(String yearMonth) {
         YearMonth ym = YearMonth.parse(yearMonth, DateTimeFormatter.ofPattern("yyyy-MM"));
@@ -74,6 +132,26 @@ public class ReportService {
         return presigned.url().toString();
     }
 
+
+    /**
+     * Converts visa holder report data into CSV format.
+     *
+     * <p>
+     * The generated CSV contains:
+     * <ul>
+     *     <li>Visa status summary counts.</li>
+     *     <li>Monthly visa holder entry records.</li>
+     * </ul>
+     * </p>
+     *
+     * @param holders visa holders entered during the month
+     * @param active active visa count
+     * @param expired expired visa count
+     * @param overstay overstayed visa count
+     * @param expiringSoon expiring soon visa count
+     * @return generated CSV content as a string
+     * @throws RuntimeException if CSV generation fails
+     */
     private String toCsv(List<VisaHolder> holders, long active, long expired, long overstay, long expiringSoon) {
         StringWriter sw = new StringWriter();
         try (CSVWriter writer = new CSVWriter(sw)) {

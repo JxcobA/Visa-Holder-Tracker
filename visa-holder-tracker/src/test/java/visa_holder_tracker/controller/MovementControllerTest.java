@@ -30,28 +30,88 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
+/**
+ * Web layer tests for {@link MovementController}.
+ *
+ * <p>
+ * These tests validate:
+ * <ul>
+ *     <li>Movement creation endpoints.</li>
+ *     <li>Movement retrieval endpoints.</li>
+ *     <li>Spring Security authorization rules.</li>
+ *     <li>HTTP response status and payload correctness.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * Uses:
+ * <ul>
+ *     <li>{@link WebMvcTest} for lightweight controller testing.</li>
+ *     <li>{@link MockMvc} for HTTP request simulation.</li>
+ *     <li>Mockito service mocking.</li>
+ *     <li>{@link WithMockUser} for authenticated security testing.</li>
+ * </ul>
+ * </p>
+ */
 @WebMvcTest(MovementController.class)
 @Import({LoginSecurityConfig.class, CustomUserDetailsService.class, JwtFilter.class, GenerateJwtToken.class})
 class MovementControllerTest {
 
+
+    /**
+     * Mock MVC client used to simulate HTTP requests.
+     */
     @Autowired
     private MockMvc mockMvc;
 
+    /**
+     * Jackson object mapper used for JSON serialization.
+     */
     @Autowired
     private ObjectMapper objectMapper;
 
+    /**
+     * Mocked movement service used
+     * to isolate controller behavior.
+     */
     @MockitoBean
     private MovementService movementService;
 
+    /**
+     * Mocked user repository required
+     * for Spring Security authentication setup.
+     */
     @MockitoBean
     private UserRepository userRepository;
 
+    /**
+     * Mocked admin repository required
+     * for Spring Security authentication setup.
+     */
     @MockitoBean
     private AdminRepository adminRepository;
 
 //    @MockitoBean
 //    private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
+
+    /**
+     * Verifies that administrators can successfully
+     * create movement records.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Authenticated ADMIN access.</li>
+     *     <li>Movement request handling.</li>
+     *     <li>HTTP 201 Created responses.</li>
+     *     <li>Correct JSON response serialization.</li>
+     * </ul>
+     * </p>
+     *
+     * @throws Exception if the HTTP request fails
+     */
     @Test
     @WithMockUser(roles = {"ADMIN"})
     void logMovement_shouldReturnCreatedMovement() throws Exception {
@@ -73,6 +133,21 @@ class MovementControllerTest {
                 .andExpect(jsonPath("$.entryDate").value("2026-05-29T00:00:00"));
     }
 
+    /**
+     * Verifies that authenticated users
+     * can retrieve visa holder movement history.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Movement retrieval endpoint behavior.</li>
+     *     <li>Correct JSON array responses.</li>
+     *     <li>Movement response serialization.</li>
+     * </ul>
+     * </p>
+     *
+     * @throws Exception if the HTTP request fails
+     */
     @Test
     @WithMockUser(roles = {"ADMIN"})
     void getMovements_shouldReturnMovementList() throws Exception {
@@ -87,6 +162,22 @@ class MovementControllerTest {
                 .andExpect(jsonPath("$[0].entryDate").value("2026-05-29T00:00:00"));
     }
 
+    /**
+     * Verifies that unauthenticated requests
+     * to protected movement endpoints
+     * are rejected with HTTP 401 Unauthorized.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Spring Security authentication enforcement.</li>
+     *     <li>Protected endpoint access restrictions.</li>
+     *     <li>Unauthorized response handling.</li>
+     * </ul>
+     * </p>
+     *
+     * @throws Exception if the HTTP request fails
+     */
     @Test
     void logMovement_withoutAuthentication_shouldReturnUnauthorised() throws Exception {
         MovementRequest request = new MovementRequest();

@@ -17,6 +17,24 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import visa_holder_tracker.config.CustomUserDetailsService;
 import visa_holder_tracker.jwt_utils.JwtFilter;
 
+
+
+/**
+ * Spring Security configuration class responsible for configuring
+ * authentication, authorization, JWT filtering, and security behavior
+ * across the application.
+ *
+ * <p>
+ * This configuration:
+ * <ul>
+ *     <li>Disables default form login and HTTP basic authentication.</li>
+ *     <li>Registers JWT authentication filtering.</li>
+ *     <li>Defines public and protected endpoints.</li>
+ *     <li>Configures password encoding using BCrypt.</li>
+ *     <li>Provides authentication manager and provider beans.</li>
+ * </ul>
+ * </p>
+ */
 @Configuration // Becomes the configuration bean class
 @EnableWebSecurity // Enables endpoint security for request access
 @EnableMethodSecurity // Enables method security for role access
@@ -24,15 +42,43 @@ public class LoginSecurityConfig {
     /// Provider: How to authenticate
     /// Manager: Handles authentication process
 
-    // Injects our custom JWT filter
+
+    /**
+     * Custom JWT filter used to validate JWT tokens
+     * before request authentication is processed.
+     */
     private final JwtFilter jwtFilter;
 
-    // Constructor to inject JWT Filter (Maybe I should do autowired instead)
+
+    /**
+     * Constructor used for dependency injection of the JWT filter.
+     *
+     * @param jwtFilter custom JWT authentication filter
+     */
     public LoginSecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
 
 
+    /**
+     * Configures the application's Spring Security filter chain.
+     *
+     * <p>
+     * This configuration:
+     * <ul>
+     *     <li>Disables CSRF protection.</li>
+     *     <li>Disables HTTP basic authentication.</li>
+     *     <li>Disables form-based login.</li>
+     *     <li>Allows access to public endpoints.</li>
+     *     <li>Requires authentication for all other endpoints.</li>
+     *     <li>Registers the JWT filter before Spring authentication processing.</li>
+     * </ul>
+     * </p>
+     *
+     * @param http Spring Security HTTP configuration object
+     * @return configured {@link SecurityFilterChain}
+     * @throws Exception if security configuration fails
+     */
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -60,6 +106,22 @@ public class LoginSecurityConfig {
         return http.build(); // Apply all the new rules.
     }
 
+
+    /**
+     * Creates and configures the authentication provider used
+     * for validating user credentials.
+     *
+     * <p>
+     * Uses:
+     * <ul>
+     *     <li>{@link CustomUserDetailsService} for loading users.</li>
+     *     <li>{@link BCryptPasswordEncoder} for password verification.</li>
+     * </ul>
+     * </p>
+     *
+     * @param userDetailsService custom service for loading user details
+     * @return configured {@link AuthenticationProvider}
+     */
     @Bean
     public AuthenticationProvider authenticationProvider(CustomUserDetailsService userDetailsService){
         // Use database backed authentication through UserDetailsService
@@ -73,6 +135,19 @@ public class LoginSecurityConfig {
         return provider;
     }
 
+
+    /**
+     * Creates the application's authentication manager.
+     *
+     * <p>
+     * The authentication manager delegates authentication
+     * processing to the configured authentication provider.
+     * </p>
+     *
+     * @param config Spring authentication configuration
+     * @return configured {@link AuthenticationManager}
+     * @throws Exception if the authentication manager cannot be created
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
         // get spring's built-in manager (Automatically uses our authenticationProvider)

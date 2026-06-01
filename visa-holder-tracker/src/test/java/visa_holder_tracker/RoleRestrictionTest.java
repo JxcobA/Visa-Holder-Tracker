@@ -20,24 +20,77 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+/**
+ * Full integration tests for role-based access control.
+ *
+ * <p>
+ * These tests validate:
+ * <ul>
+ *     <li>JWT authentication behavior.</li>
+ *     <li>Role-based authorization rules.</li>
+ *     <li>ADMIN-only endpoint restrictions.</li>
+ *     <li>Spring Security access enforcement.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * These tests run against the real Spring Boot
+ * application context, security configuration,
+ * JWT authentication flow, and database layer.
+ * </p>
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 public class RoleRestrictionTest {
+
+    /**
+     * Mock MVC client used to simulate
+     * authenticated HTTP requests.
+     */
     @Autowired
     MockMvc mockMvc;
 
+    /**
+     * Repository used for USER account setup.
+     */
     @Autowired
     UserRepository userRepository;
 
+    /**
+     * Repository used for ADMIN account setup.
+     */
     @Autowired
     AdminRepository adminRepository;
 
+    /**
+     * Repository used for visa holder
+     * persistence and deletion tests.
+     */
     @Autowired
     VisaHolderRepository visaHolderRepository;
 
+    /**
+     * Repository used for movement cleanup
+     * due to foreign key relationships.
+     */
     @Autowired
     MovementRepository movementRepository;
 
+
+    /**
+     * Verifies that USER accounts
+     * cannot access ADMIN-only delete endpoints.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>JWT authentication success.</li>
+     *     <li>Authorization failure for USER roles.</li>
+     *     <li>HTTP 403 Forbidden responses.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void userCannotDeleteVisaHolder() throws Exception {
         // Arrange: put a USER in the DB
@@ -59,6 +112,21 @@ public class RoleRestrictionTest {
                 .andExpect(status().isForbidden());
     }
 
+
+    /**
+     * Verifies that ADMIN accounts
+     * can successfully delete visa holders.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>JWT authentication success.</li>
+     *     <li>ADMIN role authorization.</li>
+     *     <li>Visa holder deletion behavior.</li>
+     *     <li>HTTP 204 No Content responses.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void adminCanDeleteVisaHolder() throws Exception {
         // 1. Seed an ADMIN so we can log in as one
@@ -91,14 +159,45 @@ public class RoleRestrictionTest {
                 .andExpect(status().isNoContent());
     }
 
+    /**
+     * Clears database state after each test.
+     *
+     * <p>
+     * Ensures test isolation by removing:
+     * <ul>
+     *     <li>Movement records</li>
+     *     <li>Visa holder records</li>
+     *     <li>Administrator accounts</li>
+     *     <li>User accounts</li>
+     * </ul>
+     * </p>
+     */
     @AfterEach
     void cleanUp() {
         movementRepository.deleteAll();
         visaHolderRepository.deleteAll();
-        adminRepository.deleteAll(); // <-- Ensure the admin table is cleared
+        adminRepository.deleteAll();
         userRepository.deleteAll();
     }
 
+    /**
+     * Performs authentication and retrieves
+     * a JWT token for secured endpoint testing.
+     *
+     * <p>
+     * This helper method:
+     * <ul>
+     *     <li>Sends login credentials to the authentication endpoint.</li>
+     *     <li>Extracts the JWT token from the response body.</li>
+     *     <li>Returns the token for authenticated requests.</li>
+     * </ul>
+     * </p>
+     *
+     * @param username login username
+     * @param password login password
+     * @return generated JWT token
+     * @throws Exception if authentication fails
+     */
     private String loginAndGetToken(String username, String password) throws Exception {
         String response = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
