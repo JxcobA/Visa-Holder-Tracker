@@ -19,22 +19,72 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+
+/**
+ * Unit tests for {@link MovementService}.
+ *
+ * <p>
+ * These tests validate:
+ * <ul>
+ *     <li>Entry movement creation.</li>
+ *     <li>Exit movement creation.</li>
+ *     <li>Visa holder existence validation.</li>
+ *     <li>Movement retrieval by passport number.</li>
+ *     <li>Correct interaction with repository dependencies.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * Mockito is used to isolate service logic
+ * without loading the Spring application context.
+ * </p>
+ */
 class MovementServiceTest {
 
+    /**
+     * Mocked repository used
+     * for movement persistence operations.
+     */
     @Mock
     private MovementRepository movementRepository;
 
+    /**
+     * Mocked repository used
+     * for visa holder lookup operations.
+     */
     @Mock
     private VisaHolderRepository visaHolderRepository;
 
+    /**
+     * Service under test with
+     * mocked dependencies injected automatically.
+     */
     @InjectMocks
     private MovementService movementService;
 
+    /**
+     * Initializes Mockito mock objects
+     * before each test execution.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Verifies that ENTRY movement requests
+     * create movement records with entry dates set.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Visa holder lookup.</li>
+     *     <li>Correct ENTRY movement mapping.</li>
+     *     <li>Movement persistence behavior.</li>
+     *     <li>Repository interaction correctness.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void logMovement_shouldCreateEntryMovement() {
         MovementRequest request = new MovementRequest();
@@ -66,6 +116,20 @@ class MovementServiceTest {
         verify(movementRepository).save(any(Movement.class));
     }
 
+    /**
+     * Verifies that EXIT movement requests
+     * create movement records with exit dates set.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Visa holder lookup.</li>
+     *     <li>Correct EXIT movement mapping.</li>
+     *     <li>Movement persistence behavior.</li>
+     *     <li>Repository interaction correctness.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void logMovement_shouldCreateExitMovement() {
         MovementRequest request = new MovementRequest();
@@ -96,6 +160,19 @@ class MovementServiceTest {
         verify(movementRepository).save(any(Movement.class));
     }
 
+    /**
+     * Verifies that movement logging fails
+     * when the visa holder does not exist.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Exception handling behavior.</li>
+     *     <li>Visa holder existence validation.</li>
+     *     <li>Prevention of invalid movement persistence.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void logMovement_shouldThrowExceptionWhenVisaHolderNotFound() {
         MovementRequest request = new MovementRequest();
@@ -117,6 +194,19 @@ class MovementServiceTest {
         verify(movementRepository, never()).save(any(Movement.class));
     }
 
+    /**
+     * Verifies that movement history
+     * can be retrieved using a passport number.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Movement repository query behavior.</li>
+     *     <li>Entity-to-response DTO mapping.</li>
+     *     <li>Correct movement response generation.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void getMovementsByHolderId_shouldReturnMovementList() {
         String passportNumber = "A1234567";

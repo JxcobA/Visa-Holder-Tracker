@@ -1,7 +1,15 @@
 # =============================================================================
-# 1) db-config.yaml  — APPLY FIRST
-# DB connection config: ConfigMap (non-sensitive) + Secret (sensitive).
-# postgres.yaml and springApp.yaml both depend on these.
+# Database and shared application configuration.
+#
+# This file contains:
+#   1. ConfigMap  -> non-sensitive environment variables
+#   2. Secret     -> sensitive credentials and secrets
+#
+# Apply this file before deploying:
+#   - PostgreSQL
+#   - Spring Boot application
+#
+# Command:
 #   kubectl apply -f db-config.yaml
 # =============================================================================
 
@@ -11,17 +19,45 @@ metadata:
   name: db-config
   labels:
     app: visa-holder-tracker
+
 data:
-  # "postgres" is the in-cluster DNS name of the Postgres Service.
+
+  # JDBC connection URL used by Spring Boot
+  # to connect to the PostgreSQL database service.
+  # "postgres" is the Kubernetes service DNS name.
   SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/visa_holder_tracker
+
+  # PostgreSQL JDBC driver used by Spring Boot.
   SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+
+  # Hibernate schema strategy.
+  # "update" automatically updates database tables
+  # to match JPA entities during application startup.
   SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  # Hibernate SQL dialect used for PostgreSQL-specific SQL generation.
   SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+
+  # Name of the PostgreSQL database
+  # created and used by the application.
   POSTGRES_DB: visa_holder_tracker
+
+  # Spring SQL initialization platform identifier
+  # used for database-specific initialization scripts.
   SPRING_SQL_INIT_PLATFORM=postgres: postgresData
+
+  # AWS region used for all AWS SDK services
+  # including S3 and SQS.
   AWS_REGION: eu-west-2
+
+  # S3 bucket used for storing generated visa reports.
   AWS_S3_BUCKET: visa-holder-reports
+
+  # AWS SQS queue URL used for:
+  #   - overstay notifications
+  #   - expiring-soon notifications
   AWS_SQS_QUEUE_URL: https://sqs.eu-west-2.amazonaws.com/158648291264/visa-violations
+
 ---
 apiVersion: v1
 kind: Secret
@@ -29,9 +65,27 @@ metadata:
   name: db-secret
   labels:
     app: visa-holder-tracker
+
 type: Opaque
+
 stringData:
+
+  # PostgreSQL database username
+  # used by the Spring application.
   POSTGRES_USER: visa_app
+
+  # PostgreSQL database password
+  # used for database authentication.
   POSTGRES_PASSWORD: change-me-strong-password
-  # Must be Base64 (GenerateJWTToken does Decoders.BASE64.decode).
+
+  # Base64-encoded JWT signing secret.
+  #
+  # Used by the JWT token service for:
+  #   - token generation
+  #   - token validation
+  #   - token signature verification
+  #
+  # Must remain Base64 encoded because
+  # the application decodes it using:
+  #   Decoders.BASE64.decode(...)
   JWT_SECRETKEY: dGhpcy1pcy1hLXRlc3Qtb25seS1zZWNyZXQta2V5LWZvci1qd3Qtc2lnbmluZy0xMjM0NTY3ODkw

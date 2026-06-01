@@ -25,26 +25,76 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+
+/**
+ * Unit tests for {@link VisaHolderService}.
+ *
+ * <p>
+ * These tests validate:
+ * <ul>
+ *     <li>Visa holder creation and updates.</li>
+ *     <li>Visa holder retrieval and deletion.</li>
+ *     <li>Pagination, searching, and filtering logic.</li>
+ *     <li>Expiry and overstay query behavior.</li>
+ *     <li>Repository interaction correctness.</li>
+ *     <li>Current service behavior for edge-case inputs.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * Mockito is used to isolate service logic
+ * from the database and external dependencies.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class) // Enables Mockito for this test class
 public class VisaHolderServiceTest {
 
+    /**
+     * Mocked repository used
+     * for visa holder persistence operations.
+     */
     @Mock // Creates a mock repo
     VisaHolderRepository visaHolderRepository;
 
+    /**
+     * Mocked notification service.
+     *
+     * <p>
+     * Present for dependency injection completeness.
+     * </p>
+     */
     @Mock // Mock the sqs service
     SqsNotificationService sqsNotificationService;
 
+    /**
+     * Service under test with mocked
+     * dependencies injected automatically.
+     */
     @InjectMocks // Creates a real service, injects mock repo into it
     VisaHolderService visaHolderService;
 
+    /**
+     * Reusable valid request object
+     * used across multiple tests.
+     */
     // A request DTO
     private VisaHolderRequest validRequest;
 
+    /**
+     * Initializes reusable test data
+     * before each test execution.
+     */
     @BeforeEach
     void setUp() {
         validRequest = buildRequest("PN123456", "Test Name", "British", "Standard Visitor Visa", VisaStatus.ACTIVE, LocalDateTime.now().plusYears(1), LocalDateTime.now().minusMonths(6));
     }
 
+    /**
+     * Helper method for building
+     * reusable visa holder request DTOs.
+     *
+     * @return configured request object
+     */
     // Helper Methods
     private VisaHolderRequest buildRequest(String passportNumber, String fullName, String nationality, String visaType, VisaStatus status, LocalDateTime expiryDate, LocalDateTime entryDate) {
         VisaHolderRequest request = new VisaHolderRequest();
@@ -58,11 +108,30 @@ public class VisaHolderServiceTest {
         return request;
     }
 
+    /**
+     * Helper method for converting
+     * request DTOs into visa holder entities.
+     *
+     * @param request source request DTO
+     * @return mapped visa holder entity
+     */
     private VisaHolder buildHolder(VisaHolderRequest request) {
         return VisaHolder.builder().passportNumber(request.getPassportNumber()).fullName(request.getFullName()).nationality(request.getNationality()).visaType(request.getVisaType()).status(request.getStatus()).expiryDate(request.getExpiryDate()).entryDate(request.getEntryDate()).build();
     }
 
-
+    /**
+     * Verifies that visa holders
+     * are successfully persisted and returned.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Entity creation.</li>
+     *     <li>Repository save operations.</li>
+     *     <li>Correct returned entity values.</li>
+     * </ul>
+     * </p>
+     */
     // Tests
     @Test
     void savesAndReturnsHolder() {
@@ -83,6 +152,17 @@ public class VisaHolderServiceTest {
         verify(visaHolderRepository, times(1)).save(any(VisaHolder.class));
     }
 
+    /**
+     * Verifies that all request fields
+     * are correctly mapped into the entity
+     * before persistence.
+     *
+     * <p>
+     * Uses {@link ArgumentCaptor}
+     * to inspect the exact entity passed
+     * to the repository layer.
+     * </p>
+     */
     @Test
     void mapsAllFieldsCorrectly() {
         VisaHolder expectedHolder = buildHolder(validRequest);
@@ -105,6 +185,19 @@ public class VisaHolderServiceTest {
         assertThat(captured.getStatus()).isEqualTo(validRequest.getStatus());
     }
 
+    /**
+     * Verifies that paginated visa holder data
+     * is correctly returned from the repository.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Pagination behavior.</li>
+     *     <li>Correct PageRequest generation.</li>
+     *     <li>Repository interaction correctness.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void getAllVisaHolders_returnsPageFromRepository() {
         // Page is a Spring Data interface, represents a list of paginated data
@@ -119,6 +212,10 @@ public class VisaHolderServiceTest {
         verify(visaHolderRepository).findAll(PageRequest.of(0, 10));
     }
 
+    /**
+     * Verifies that existing passport numbers
+     * return matching visa holder records.
+     */
     @Test
     void getVisaHolderByPassportNumber_existingPassport_returnsHolder() {
         VisaHolder expectedHolder = buildHolder(validRequest);
@@ -129,6 +226,10 @@ public class VisaHolderServiceTest {
         assertThat(result.getPassportNumber()).isEqualTo("PN123456");
     }
 
+    /**
+     * Verifies that unknown passport numbers
+     * trigger a resource-not-found exception.
+     */
     @Test
     void getVisaHolderByPassportNumber_notFound_throwsRuntimeException() {
         // Return an empty Optional to simulate a missing record.
@@ -138,6 +239,15 @@ public class VisaHolderServiceTest {
         assertThatThrownBy(() -> visaHolderService.getVisaHolderByPassportNumber("UNKNOWN")).isInstanceOf(RuntimeException.class).hasMessage("Visa Holder Not Found");
     }
 
+    /**
+     * Verifies that searching by name
+     * returns matching visa holders.
+     *
+     * <p>
+     * Ensures case-insensitive partial-name
+     * searching works correctly.
+     * </p>
+     */
     @Test
     void searchVisaHoldersByName_matchingName_returnsPage() {
         Page<VisaHolder> mockPage = new PageImpl<>(List.of(buildHolder(validRequest)));
@@ -149,6 +259,10 @@ public class VisaHolderServiceTest {
         assertThat(result.getContent().get(0).getFullName()).isEqualTo("Test Name");
     }
 
+    /**
+     * Verifies that unmatched search terms
+     * return empty paginated results.
+     */
     @Test
     void searchVisaHoldersByName_noMatch_returnsEmptyPage() {
         when(visaHolderRepository.findByFullNameContainingIgnoreCase(eq("Nobody"), any(Pageable.class))).thenReturn(Page.empty());
@@ -158,6 +272,10 @@ public class VisaHolderServiceTest {
         assertThat(result.getContent()).isEmpty();
     }
 
+    /**
+     * Verifies that filtering by visa status
+     * returns only matching visa holders.
+     */
     @Test
     void filterVisaHolderByStatus_activeStatus_returnsMatchingPage() {
         Page<VisaHolder> mockPage = new PageImpl<>(List.of(buildHolder(validRequest)));
@@ -169,6 +287,19 @@ public class VisaHolderServiceTest {
         verify(visaHolderRepository).findByStatus(VisaStatus.ACTIVE, PageRequest.of(0, 10));
     }
 
+    /**
+     * Verifies that existing visa holders
+     * can be updated successfully.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Existing entity lookup.</li>
+     *     <li>Field replacement behavior.</li>
+     *     <li>Repository save operations.</li>
+     * </ul>
+     * </p>
+     */
     @Test
     void updateVisaHolder_existingHolder_updatesAndReturns() {
         VisaHolder existingHolder = buildHolder(validRequest);
@@ -187,6 +318,10 @@ public class VisaHolderServiceTest {
         verify(visaHolderRepository).save(existingHolder);
     }
 
+    /**
+     * Verifies that updates fail
+     * when the visa holder does not exist.
+     */
     @Test
     void updateVisaHolder_notFound_throwsRuntimeException() {
         when(visaHolderRepository.findByPassportNumber("UNKNOWN")).thenReturn(Optional.empty());
@@ -194,6 +329,10 @@ public class VisaHolderServiceTest {
         assertThatThrownBy(() -> visaHolderService.updateVisaHolder("UNKNOWN", validRequest)).isInstanceOf(RuntimeException.class);
     }
 
+    /**
+     * Verifies that existing visa holders
+     * can be deleted successfully.
+     */
     @Test
     void deleteVisaHolder_existingHolder_deletesSuccessfully() {
         VisaHolder holder = buildHolder(validRequest);
@@ -205,6 +344,15 @@ public class VisaHolderServiceTest {
         verify(visaHolderRepository).delete(holder);
     }
 
+    /**
+     * Verifies that delete operations fail
+     * when the visa holder does not exist.
+     *
+     * <p>
+     * Ensures repository delete operations
+     * are never triggered for missing entities.
+     * </p>
+     */
     @Test
     void deleteVisaHolder_notFound_throwsRuntimeException() {
         when(visaHolderRepository.findByPassportNumber("ghost")).thenReturn(Optional.empty());
@@ -215,6 +363,16 @@ public class VisaHolderServiceTest {
         verify(visaHolderRepository, never()).delete(any());
     }
 
+    /**
+     * Verifies that visa holders expiring
+     * within the requested time window
+     * are correctly returned.
+     *
+     * <p>
+     * This test also validates correct
+     * cutoff-date calculation logic.
+     * </p>
+     */
     @Test
     void getExpiringSoon_returnsList() {
         List<VisaHolder> mockList = List.of(buildHolder(validRequest));
@@ -231,6 +389,11 @@ public class VisaHolderServiceTest {
         assertThat(cutoffCaptor.getValue()).isEqualTo(todayCaptor.getValue().plusDays(30));
     }
 
+    /**
+     * Verifies that empty results
+     * are returned when no visas
+     * are expiring soon.
+     */
     @Test
     void getExpiringSoon_noneExpiring_returnsEmptyList() {
         when(visaHolderRepository.findExpiringSoon(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(List.of());
@@ -240,6 +403,15 @@ public class VisaHolderServiceTest {
         assertThat(result).isEmpty();
     }
 
+    /**
+     * Verifies that expired visa holders
+     * are correctly retrieved.
+     *
+     * <p>
+     * Ensures repository queries receive
+     * the current timestamp correctly.
+     * </p>
+     */
     @Test
     void getExpired_returnsExpiredHolders() {
         List<VisaHolder> mockExpired = List.of(buildHolder(validRequest));
@@ -254,6 +426,10 @@ public class VisaHolderServiceTest {
         assertThat(dateCaptor.getValue()).isBeforeOrEqualTo(LocalDateTime.now());
     }
 
+    /**
+     * Verifies that ACTIVE visa counts
+     * are correctly returned from the repository.
+     */
     @Test
     void countActive_returnsCountFromRepository() {
         when(visaHolderRepository.countByStatus(VisaStatus.ACTIVE)).thenReturn(5L);
@@ -264,6 +440,16 @@ public class VisaHolderServiceTest {
         verify(visaHolderRepository).countByStatus(VisaStatus.ACTIVE);
     }
 
+    /**
+     * Verifies current service behavior
+     * when full names are null.
+     *
+     * <p>
+     * This test documents that the service
+     * currently allows null values
+     * without validation.
+     * </p>
+     */
     // Doesn't validate, tests what actually happens
     @Test
     void createVisaHolder_nullFullName_savesWithNull() {
@@ -277,6 +463,15 @@ public class VisaHolderServiceTest {
         assertThat(result.getFullName()).isNull();
     }
 
+    /**
+     * Verifies current service behavior
+     * when visa status values are null.
+     *
+     * <p>
+     * This test documents the absence
+     * of service-layer validation.
+     * </p>
+     */
     @Test
     void createVisaHolder_nullStatus_savesWithNull() {
         VisaHolderRequest req = buildRequest("PN999", "Test Name", "British", "Student", null, LocalDateTime.now().plusYears(1), LocalDateTime.now().minusDays(1));
@@ -288,6 +483,15 @@ public class VisaHolderServiceTest {
         assertThat(result.getStatus()).isNull();
     }
 
+    /**
+     * Verifies current service behavior
+     * when expiry dates are already in the past.
+     *
+     * <p>
+     * This test documents that the service
+     * still persists expired visa data.
+     * </p>
+     */
     @Test
     void createVisaHolder_expiryDateInPast_serviceStillSaves() {
         VisaHolderRequest req = buildRequest("PN999", "Test Name", "British", "Student", VisaStatus.ACTIVE, LocalDateTime.now().minusDays(1), LocalDateTime.now().minusMonths(1));
@@ -300,6 +504,15 @@ public class VisaHolderServiceTest {
         assertThat(result.getExpiryDate()).isBefore(LocalDateTime.now());
     }
 
+    /**
+     * Verifies current service behavior
+     * when entry dates are in the future.
+     *
+     * <p>
+     * This test documents that future entry dates
+     * are currently accepted and persisted.
+     * </p>
+     */
     @Test
     void createVisaHolder_entryDateInFuture_serviceStillSaves() {
         VisaHolderRequest req = buildRequest("PN999", "Test Name", "British", "Student", VisaStatus.ACTIVE, LocalDateTime.now().plusYears(1), LocalDateTime.now().plusDays(10));  // ← entry in the future
@@ -312,6 +525,16 @@ public class VisaHolderServiceTest {
         assertThat(result.getEntryDate()).isAfter(LocalDateTime.now());
     }
 
+    /**
+     * Verifies current service behavior
+     * when expiry dates occur before entry dates.
+     *
+     * <p>
+     * This highlights a potential business-rule gap
+     * because logically invalid dates
+     * are still persisted.
+     * </p>
+     */
     @Test
     void createVisaHolder_expiryBeforeEntry_serviceStillSaves() {
         // Potential gap in business logic
@@ -327,7 +550,14 @@ public class VisaHolderServiceTest {
         assertThat(result.getExpiryDate()).isBefore(result.getEntryDate());
     }
 
-
+    /**
+     * Verifies that expiry alerts
+     * correctly return both:
+     * <ul>
+     *     <li>Expiring-soon visa holders</li>
+     *     <li>Expired visa holders</li>
+     * </ul>
+     */
     @Test
     void getExpiryAlerts_returnsBothLists() {
         VisaHolder soonHolder = buildHolder(validRequest);
@@ -344,6 +574,10 @@ public class VisaHolderServiceTest {
         assertThat(result.expired().get(0).getPassportNumber()).isEqualTo("EXP001");
     }
 
+    /**
+     * Verifies that empty expiry-alert lists
+     * are returned when no matching visa holders exist.
+     */
     @Test
     void getExpiryAlerts_noneExpiring_returnsEmptyLists() {
         when(visaHolderRepository.findExpiringSoon(any(), any())).thenReturn(List.of());

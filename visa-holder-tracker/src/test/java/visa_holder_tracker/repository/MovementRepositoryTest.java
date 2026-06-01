@@ -13,15 +13,65 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
+/**
+ * Repository integration tests for {@link MovementRepository}.
+ *
+ * <p>
+ * These tests validate:
+ * <ul>
+ *     <li>Movement persistence behavior.</li>
+ *     <li>Movement lookup by visa holder passport number.</li>
+ *     <li>Entity relationships between {@link Movement}
+ *     and {@link VisaHolder}.</li>
+ *     <li>Custom repository query correctness.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * Uses {@link DataJpaTest} to load
+ * an isolated JPA persistence context
+ * with an in-memory test database.
+ * </p>
+ */
 @DataJpaTest
 public class MovementRepositoryTest {
 
+
+    /**
+     * Repository under test used
+     * for movement database operations.
+     */
     @Autowired
     MovementRepository movementRepository;
 
+    /**
+     * Repository used for creating
+     * visa holder test data.
+     *
+     * <p>
+     * Required because {@link Movement}
+     * has a foreign key relationship
+     * to {@link VisaHolder}.
+     * </p>
+     */
     @Autowired
     VisaHolderRepository visaHolderRepository;
 
+    /**
+     * Verifies that movements
+     * can be retrieved using
+     * a visa holder passport number.
+     *
+     * <p>
+     * This test validates:
+     * <ul>
+     *     <li>Foreign key relationship persistence.</li>
+     *     <li>Correct repository query filtering.</li>
+     *     <li>Retrieval of multiple movement records.</li>
+     * </ul>
+     * </p>
+     */
     // Tests
     @Test
     void findByVisaHolderPassportNumber_returnsCorrectMovements() {
@@ -52,6 +102,17 @@ public class MovementRepositoryTest {
         assertThat(results).hasSize(2);
     }
 
+    /**
+     * Verifies that querying with
+     * a non-existent passport number
+     * returns an empty result list.
+     *
+     * <p>
+     * Ensures repository queries
+     * correctly return no matches
+     * when movement records do not exist.
+     * </p>
+     */
     @Test
     void findByVisaHolderPassportNumber_wrongPassport_returnsEmpty() {
         List<Movement> results = movementRepository.findByVisaHolderPassportNumber("WRONG");
